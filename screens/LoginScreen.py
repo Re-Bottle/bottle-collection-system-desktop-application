@@ -5,7 +5,7 @@ from PIL import Image, ImageTk
 # from screens import HomeScreen
 
 
-def BottleDetectedLoadingScreen(window: tk.Tk):
+def LoginScreen(window: tk.Tk):
     wifi_connected = Image.open("./assets/connected.png")
     wifi_disconnected = Image.open("./assets/not-connected.png")
     back = Image.open("./assets/back.png")
@@ -59,13 +59,13 @@ def BottleDetectedLoadingScreen(window: tk.Tk):
 
     # back button
     back_image = ImageTk.PhotoImage(back)
-    back_button = tk.Button(
-        window,
-        image=back_image,
-        command=lambda: SelectWiFiScreen.SelectWiFiScreen(window),
-    )
-    back_button.image = back_image
-    back_button.place(x=66, y=81)
+    # back_button = tk.Button(
+    #     window,
+    #     image=back_image,
+    #     command=lambda: SelectWiFiScreen.SelectWiFiScreen(window),
+    # )
+    # back_button.image = back_image
+    # back_button.place(x=66, y=81)
 
     # login entry fields
     # keyboard for input

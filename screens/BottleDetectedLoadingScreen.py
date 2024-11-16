@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import Canvas
 from PIL import Image, ImageTk
 
-# from screens import HomeScreen
+from screens import HomeScreen
 
 
 def BottleDetectedLoadingScreen(window: tk.Tk):
