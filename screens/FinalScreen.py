@@ -1,19 +1,22 @@
 import tkinter as tk
-from tkinter import Canvas
+from tkinter import Canvas, messagebox, ttk
 from PIL import Image, ImageTk
 
 from main import WIFI_STATE
 
-from screens import HomeScreen, ConfigureWiFiScreen, BottleDetectedLoadingScreen
+from screens import HomeScreen
 
 
-def SettingsScreen(window: tk.Tk, application_state: dict):
+def FinalScreen(window: tk.Tk, application_state: dict):
     wifi_connected = Image.open("./assets/connected.png")
     wifi_disconnected = Image.open("./assets/not-connected.png")
-    back = Image.open("./assets/back.png")
+    back_to_home = Image.open("./assets/back_to_home.png")
+    qr_code = Image.open("./assets/qrcode_dummy.png")
 
     connected_image = ImageTk.PhotoImage(wifi_connected)
     not_connected_image = ImageTk.PhotoImage(wifi_disconnected)
+    back_to_home_image = ImageTk.PhotoImage(back_to_home)
+    qr_code_image = ImageTk.PhotoImage(qr_code)
 
     canvas = Canvas(
         window,
@@ -36,15 +39,6 @@ def SettingsScreen(window: tk.Tk, application_state: dict):
     )
 
     canvas.create_text(
-        340.0,
-        70.0,
-        anchor="nw",
-        text="Settings",
-        fill="#515050",
-        font=("Kadwa Regular", 20),
-    )
-
-    canvas.create_text(
         701.0,
         15.0,
         anchor="nw",
@@ -53,7 +47,15 @@ def SettingsScreen(window: tk.Tk, application_state: dict):
         font=("Kadwa Regular", 10),
     )
 
-    # images
+    canvas.create_text(
+        300.0,
+        70.0,
+        anchor="nw",
+        text="Thank you!",
+        fill="#515050",
+        font=("Kadwa Regular", 20),
+    )
+
     canvas.create_image(
         677,
         10,
@@ -67,44 +69,9 @@ def SettingsScreen(window: tk.Tk, application_state: dict):
     canvas.image2 = connected_image
     canvas.image3 = not_connected_image
 
-    # card
-    card_x1, card_y1 = 150, 172
-    card_width, card_height = 500, 200
-    card_x2, card_y2 = card_x1 + card_width, card_y1 + card_height
-
-    canvas.create_rectangle(
-        card_x1, card_y1, card_x2, card_y2, fill="#ffffff", outline="#000000", width=2
-    )
-
-    # Buttons
-    # Configure WiFi
-    button_configure_wifi = tk.Label(
+    back_to_home_image_button = tk.Label(
         window,
-        text="> Configure WiFi",
-    )
-    button_configure_wifi.bind(
-        "<Button-1>",
-        lambda _: ConfigureWiFiScreen.configureWIFIScreen(window, application_state),
-    )
-    button_configure_wifi.place(x=163, y=205)
-
-    # Restart Device
-    button_restart = tk.Label(
-        window,
-        text="> Restart",
-    )
-    button_restart.bind(
-        "<Button-1>",
-        lambda _: BottleDetectedLoadingScreen.BottleDetectedLoadingScreen(
-            window, application_state
-        ),  # Change later TODO: Implement restart
-    )
-    button_restart.place(x=163, y=255)
-
-    back_image = ImageTk.PhotoImage(back)
-    back_button = tk.Label(
-        window,
-        image=back_image,
+        image=back_to_home_image,
         borderwidth=0,  # Remove the border
         highlightthickness=0,  # Remove the highlight border
         relief="flat",  # Set the button relief to "flat" to avoid any raised or sunken borders
@@ -112,11 +79,37 @@ def SettingsScreen(window: tk.Tk, application_state: dict):
         padx=10,  # Add horizontal padding (space around the image)
         pady=10,  # Add vertical padding (space around the image)
     )
-    back_button.image = back_image
-    back_button.bind(
+
+    back_to_home_image_button.image = back_to_home_image
+    back_to_home_image_button.bind(
         "<Button-1>",
         lambda _: HomeScreen.HomeScreen(window, application_state),
     )
-    back_button.place(x=66, y=81)
+    back_to_home_image_button.place(x=40, y=80)
+
+    canvas.create_text(
+        40.0,
+        400.0,
+        anchor="nw",
+        text="Tap to start again!",
+        fill="#000000",
+        font=("Kadwa Regular", 15),
+    )
+
+    canvas.create_image(
+        450,
+        80,
+        anchor=tk.NW,
+        image=qr_code_image,
+    )
+    canvas.image5 = qr_code_image
+    canvas.create_text(
+        450.0,
+        400.0,
+        anchor="nw",
+        text="Scan to verify your reward.",
+        fill="#000000",
+        font=("Kadwa Regular", 15),
+    )
 
     return canvas
