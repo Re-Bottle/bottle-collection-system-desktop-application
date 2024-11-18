@@ -2,18 +2,16 @@ import tkinter as tk
 from tkinter import Canvas
 from PIL import Image, ImageTk
 
-from main import WIFI_STATE
+from components.date_time import Add_date_time
+from components.name_logo import Add_Name_Logo
+from components.wifi_status import Add_Wifi_Status
 
+from misc.utility import ApplicationState
 from screens import HomeScreen, ConfigureWiFiScreen, BottleDetectedLoadingScreen
 
 
-def SettingsScreen(window: tk.Tk, application_state: dict):
-    wifi_connected = Image.open("./assets/connected.png")
-    wifi_disconnected = Image.open("./assets/not-connected.png")
+def SettingsScreen(window: tk.Tk, application_state: ApplicationState):
     back = Image.open("./assets/back.png")
-
-    connected_image = ImageTk.PhotoImage(wifi_connected)
-    not_connected_image = ImageTk.PhotoImage(wifi_disconnected)
 
     canvas = Canvas(
         window,
@@ -27,15 +25,6 @@ def SettingsScreen(window: tk.Tk, application_state: dict):
     canvas.place(x=0, y=0)
 
     canvas.create_text(
-        269.0,
-        19.0,
-        anchor="nw",
-        text="Name | Logo",
-        fill="#000000",
-        font=("Kadwa Bold", 30),
-    )
-
-    canvas.create_text(
         340.0,
         70.0,
         anchor="nw",
@@ -43,29 +32,6 @@ def SettingsScreen(window: tk.Tk, application_state: dict):
         fill="#515050",
         font=("Kadwa Regular", 20),
     )
-
-    canvas.create_text(
-        701.0,
-        15.0,
-        anchor="nw",
-        text=((application_state.get("WIFI")).value),
-        fill="#515050",
-        font=("Kadwa Regular", 10),
-    )
-
-    # images
-    canvas.create_image(
-        677,
-        10,
-        anchor=tk.NW,
-        image=(
-            connected_image
-            if application_state.get("WIFI") == WIFI_STATE.CONNECTED
-            else not_connected_image
-        ),
-    )
-    canvas.image2 = connected_image
-    canvas.image3 = not_connected_image
 
     # card
     card_x1, card_y1 = 150, 172
@@ -84,7 +50,7 @@ def SettingsScreen(window: tk.Tk, application_state: dict):
     )
     button_configure_wifi.bind(
         "<Button-1>",
-        lambda _: ConfigureWiFiScreen.configureWIFIScreen(window, application_state),
+        lambda _: ConfigureWiFiScreen.ConfigureWIFIScreen(window, application_state),
     )
     button_configure_wifi.place(x=163, y=205)
 
@@ -118,5 +84,14 @@ def SettingsScreen(window: tk.Tk, application_state: dict):
         lambda _: HomeScreen.HomeScreen(window, application_state),
     )
     back_button.place(x=66, y=81)
+
+    # Function for displaying name and logo
+    Add_Name_Logo(canvas)
+
+    # Function for displaying date and time
+    Add_date_time(window)
+
+    # Function for displaying Wi-Fi status
+    Add_Wifi_Status(canvas, application_state)
 
     return canvas

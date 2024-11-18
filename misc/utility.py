@@ -11,6 +11,28 @@ class WIFI_STATE(Enum):
     UNAVAILABLE = "Unavailable"
 
 
+class ApplicationState:
+    wifi_state: WIFI_STATE = WIFI_STATE.NOT_CONNECTED
+
+    def __init__(self):
+        self.update_wifi_state()
+
+    def set_wifi_state(self, state: WIFI_STATE):
+        self.wifi_state = state
+
+    def get_wifi_state(self):
+        return self.wifi_state
+
+    def update_wifi_state(self):
+        state = get_wifi_state()
+        if state:
+            self.set_wifi_state(WIFI_STATE.CONNECTED)
+        elif state is False:
+            self.set_wifi_state(WIFI_STATE.NOT_CONNECTED)
+        else:
+            self.set_wifi_state(WIFI_STATE.UNAVAILABLE)
+
+
 def connect_wifi(ssid, password):
     """
     Connect to a Wi-Fi network based on the current operating system.
@@ -111,7 +133,13 @@ def list_available_wifi_windows(should_refresh=True):
     """
     try:
         if should_refresh:
-            subprocess.run(["wifi", "scan"], check=True, text=True)
+            subprocess.run(
+                ["wifi", "scan"],
+                check=True,
+                text=True,
+                stdout=subprocess.DEVNULL,  # Suppress standard output
+                stderr=subprocess.DEVNULL,  # Suppress standard error
+            )
             time.sleep(5)  # Wait a few seconds to ensure the scan is complete
 
         # Run `netsh wlan show networks` to get available Wi-Fi networks
@@ -123,7 +151,9 @@ def list_available_wifi_windows(should_refresh=True):
 
         for result_item in result.strip().splitlines():
             if "SSID" in result_item:
-                networks.append(result_item.split(" ")[-1])
+                network_name = result_item.split(":")[-1].strip()
+                if network_name:
+                    networks.append(network_name)
 
         return networks
 
@@ -154,6 +184,69 @@ def list_available_wifi_linux(should_refresh=True):
     except subprocess.CalledProcessError as e:
         print(f"Error listing Wi-Fi networks on Linux: {e}")
         return []
+
+
+def get_wifi_state():
+    """
+    Get the current Wi-Fi connection status based on the operating system.
+    Returns True if connected, False if not connected, and None if the state could not be determined.
+    """
+    current_os = platform.system().lower()
+
+    if current_os == "windows":
+        return get_wifi_state_windows()
+    elif current_os == "linux":
+        return get_wifi_state_linux()
+    else:
+        print(
+            f"Operating system '{current_os}' not supported for Wi-Fi state checking."
+        )
+        return None
+
+
+def get_wifi_state_windows():
+    try:
+        # Run netsh command to show WLAN interfaces
+        result = subprocess.run(
+            ["netsh", "wlan", "show", "interfaces"],
+            check=True,
+            text=True,
+            capture_output=True,
+        )
+        return "State" in result.stdout and not "disconnected" in result.stdout.lower()
+    except subprocess.CalledProcessError:
+        print("Error checking Wi-Fi state.")
+        return False
+
+
+def get_wifi_state_linux():
+    try:
+        # Run nmcli command to check Wi-Fi connection status
+        result = subprocess.run(
+            ["nmcli", "-t", "-f", "ACTIVE,SSID", "device", "wifi"],
+            check=True,
+            text=True,
+            capture_output=True,
+        )
+        if "yes" in result.stdout.lower():
+            print("Connected to Wi-Fi.")
+            return True
+        else:
+            print("Not connected to Wi-Fi.")
+            return False
+    except subprocess.CalledProcessError:
+        print("Error checking Wi-Fi state.")
+        return False
+
+
+def restart():
+    pass
+
+
+def restart_system():
+    """Restart the system on Windows."""
+    print("Restarting the system...")
+    subprocess.run(["shutdown", "/r", "/t", "0"])  # /r = restart, /t 0 = no delay
 
 
 # Example usage:

@@ -2,22 +2,21 @@ import tkinter as tk
 from tkinter import Canvas
 from PIL import Image, ImageTk
 
-from screens import WiFiConnectScreen
+from components.date_time import Add_date_time
+from components.name_logo import Add_Name_Logo
+from components.wifi_status import Add_Wifi_Status
+from misc.utility import ApplicationState
+from screens import ConfigureWiFiScreen
 
 from main import WIFI_STATE
 
 
-def WiFiConnectScreen(window: tk.Tk, application_state: dict, wifi_name: str = ""):
+def WiFiConnectScreen(
+    window: tk.Tk, application_state: ApplicationState, wifi_name: str = ""
+):
     # Load Images
-    wifi_connected = Image.open("./assets/connected.png")
-    wifi_disconnected = Image.open("./assets/not-connected.png")
     settings = Image.open("./assets/settings.png")
     back = Image.open("./assets/back.png")
-
-    # Images for display
-    connected_image = ImageTk.PhotoImage(wifi_connected)
-    not_connected_image = ImageTk.PhotoImage(wifi_disconnected)
-    settings_image = ImageTk.PhotoImage(settings)
 
     # Create Canvas for layout
     canvas = Canvas(
@@ -30,16 +29,6 @@ def WiFiConnectScreen(window: tk.Tk, application_state: dict, wifi_name: str = "
         relief="ridge",
     )
     canvas.place(x=0, y=0)
-
-    # Header text and labels
-    canvas.create_text(
-        269.0,
-        19.0,
-        anchor="nw",
-        text="Name | Logo",
-        fill="#000000",
-        font=("Kadwa Bold", 30),
-    )
 
     # Entry field for Wi-Fi password input
     password = tk.Label(
@@ -69,30 +58,6 @@ def WiFiConnectScreen(window: tk.Tk, application_state: dict, wifi_name: str = "
     )
     password_entry.place(x=120, y=200)
 
-    # Display Wi-Fi status
-    canvas.create_text(
-        701.0,
-        15.0,
-        anchor="nw",
-        text=((application_state.get("WIFI")).value),
-        fill="#515050",
-        font=("Kadwa Regular", 10),
-    )
-
-    canvas.create_image(
-        677,
-        10,
-        anchor=tk.NW,
-        image=(
-            connected_image
-            if application_state.get("WIFI") == WIFI_STATE.CONNECTED
-            else not_connected_image
-        ),
-    )
-
-    canvas.image1 = connected_image
-    canvas.image2 = not_connected_image
-
     back_image = ImageTk.PhotoImage(back)
     back_button = tk.Label(
         window,
@@ -107,7 +72,7 @@ def WiFiConnectScreen(window: tk.Tk, application_state: dict, wifi_name: str = "
     back_button.image = back_image
     back_button.bind(
         "<Button-1>",
-        lambda _: WiFiConnectScreen.WiFiConnectScreen(window, application_state),
+        lambda _: ConfigureWiFiScreen.ConfigureWIFIScreen(window, application_state),
     )
     back_button.place(x=66, y=81)
 
@@ -223,5 +188,14 @@ def WiFiConnectScreen(window: tk.Tk, application_state: dict, wifi_name: str = "
         command=lambda: password_var.set(""),
     )
     clear_button.place(x=30 + (col + 1) * 55, y=230 + row * 40)
+
+    # Function for displaying name and logo
+    Add_Name_Logo(canvas)
+
+    # Function for displaying date and time
+    Add_date_time(window)
+
+    # Function for displaying Wi-Fi status
+    Add_Wifi_Status(canvas, application_state)
 
     return canvas
