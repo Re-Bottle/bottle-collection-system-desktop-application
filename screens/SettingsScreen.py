@@ -6,7 +6,7 @@ from components.date_time import Add_date_time
 from components.name_logo import Add_Name_Logo
 from components.wifi_status import Add_Wifi_Status
 
-from misc.utility import ApplicationState
+from misc.utility import ApplicationState, restart
 from screens import HomeScreen, ConfigureWiFiScreen, BottleDetectedLoadingScreen
 
 
@@ -59,12 +59,7 @@ def SettingsScreen(window: tk.Tk, application_state: ApplicationState):
         window,
         text="> Restart",
     )
-    button_restart.bind(
-        "<Button-1>",
-        lambda _: BottleDetectedLoadingScreen.BottleDetectedLoadingScreen(
-            window, application_state
-        ),  # Change later TODO: Implement restart
-    )
+    button_restart.bind("<Button-1>", lambda _: restart())
     button_restart.place(x=163, y=255)
 
     back_image = ImageTk.PhotoImage(back)

@@ -240,10 +240,21 @@ def get_wifi_state_linux():
 
 
 def restart():
-    pass
+    """
+    Restart the system based on the current operating system.
+    """
+    current_os = platform.system().lower()
+
+    if current_os == "windows":
+        restart_windows()
+    elif current_os == "linux":
+        # restart_linux()
+        pass
+    else:
+        print(f"Operating system '{current_os}' not supported for system restart.")
 
 
-def restart_system():
+def restart_windows():
     """Restart the system on Windows."""
     print("Restarting the system...")
     subprocess.run(["shutdown", "/r", "/t", "0"])  # /r = restart, /t 0 = no delay
