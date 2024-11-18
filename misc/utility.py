@@ -33,6 +33,39 @@ class ApplicationState:
             self.set_wifi_state(WIFI_STATE.UNAVAILABLE)
 
 
+import re
+
+
+def validate_wifi_credentials(ssid, password):
+    """
+    Validate the Wi-Fi credentials by checking if the SSID and password are not empty,
+    if they meet basic length and character requirements, and if the password is complex enough.
+    """
+    print(password)
+    # Check if SSID is empty
+    if not ssid:
+        return False
+
+    # Check if password is empty
+    if not password:
+        return False
+
+    # Check if SSID length is within acceptable range (1 to 32 characters is standard for Wi-Fi)
+    if len(ssid) < 1 or len(ssid) > 32:
+        return False
+
+    # Check if password length is within acceptable range (minimum 8 characters for WPA2)
+    if len(password) < 8 or len(password) > 63:
+        return False
+
+    # Validate SSID for valid characters (only alphanumeric and special characters like -_ are typically allowed)
+    if not re.match(r"^[a-zA-Z0-9\-_ ']+$", ssid):
+        return False
+
+    # If all checks pass, return True
+    return True
+
+
 def connect_wifi(ssid, password):
     """
     Connect to a Wi-Fi network based on the current operating system.
@@ -43,11 +76,11 @@ def connect_wifi(ssid, password):
     current_os = platform.system().lower()
 
     if current_os == "windows":
-        connect_wifi_windows(ssid, ssid, password)
+        return connect_wifi_windows(ssid, ssid, password)
     elif current_os == "linux":
-        connect_wifi_linux(ssid, password)
+        return connect_wifi_linux(ssid, password)
     else:
-        print(f"Operating system '{current_os}' not supported for Wi-Fi connection.")
+        return False
 
 
 def connect_wifi_windows(name, SSID, password):
@@ -86,11 +119,18 @@ def connect_wifi_windows(name, SSID, password):
 </WLANProfile>"""
     )
     disconnect_command = "netsh wlan disconnect"
-    command = 'netsh wlan add profile filename="' + name + '.xml"' + " interface=WiFi"
+    command = 'netsh wlan add profile filename="' + name + '.xml"' + " interface=Wi-Fi"
+    connect_command = "netsh wlan connect name=" + name
+
     with open(name + ".xml", "w") as file:
         file.write(config)
-    os.system(disconnect_command)
-    os.system(command)
+    try:
+        os.system(command)
+        os.system(disconnect_command)
+        subprocess.run(connect_command, check=True, shell=True)
+        return True
+    except subprocess.CalledProcessError as e:
+        return False
 
 
 def connect_wifi_linux(ssid, password):
@@ -105,9 +145,9 @@ def connect_wifi_linux(ssid, password):
         subprocess.run(
             ["nmcli", "dev", "wifi", "connect", ssid, "password", password], check=True
         )
-        print(f"Successfully connected to {ssid}!")
+        return True
     except subprocess.CalledProcessError as e:
-        print(f"Failed to connect to {ssid}: {e}")
+        return False
 
 
 def list_available_wifi(should_refresh=True):
