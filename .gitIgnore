@@ -1,2 +1,10 @@
+# Ignore Folders
 __pycache__/
+build/
+dist/
+
+# Ignore Files with Extension
 *.xml
+
+# Ignore Files
+main.spec

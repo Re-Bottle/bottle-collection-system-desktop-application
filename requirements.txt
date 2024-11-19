@@ -1,2 +1,3 @@
 winwifi #https://github.com/mrjohannchang/winwifi?tab=readme-ov-file
 pillow
+qrcode[pil]

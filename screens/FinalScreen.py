@@ -1,22 +1,55 @@
 import tkinter as tk
 from tkinter import Canvas, messagebox, ttk
 from PIL import Image, ImageTk
+import qrcode
 
+from components.date_time import Add_date_time
+from components.name_logo import Add_Name_Logo
+from components.wifi_status import Add_Wifi_Status
 from main import WIFI_STATE
 
 from screens import HomeScreen
 
 
-def FinalScreen(window: tk.Tk, application_state: dict):
-    wifi_connected = Image.open("./assets/connected.png")
-    wifi_disconnected = Image.open("./assets/not-connected.png")
-    back_to_home = Image.open("./assets/back_to_home.png")
-    qr_code = Image.open("./assets/qrcode_dummy.png")
+def generate_qr_on_canvas(canvas, text):
+    """
+    Generates a QR code from the provided text and displays it on the given Tkinter Canvas.
 
-    connected_image = ImageTk.PhotoImage(wifi_connected)
-    not_connected_image = ImageTk.PhotoImage(wifi_disconnected)
+    Parameters:
+    - canvas: The Tkinter Canvas widget where the QR code will be displayed.
+    - text: The text to be encoded into the QR code.
+    """
+    if not text:
+        print("Error: No text provided for QR code.")
+        return
+
+    # Generate QR code
+    qr = qrcode.QRCode(
+        version=1,  # QR code size (1-40)
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,  # Size of each box in the QR code
+        border=4,  # Border thickness
+    )
+    qr.add_data(text)
+    qr.make(fit=True)
+
+    # Create an image from the QR code
+    img = qr.make_image(fill="black", back_color="white")
+
+    # Convert the image to a format Tkinter can display
+    img_tk = ImageTk.PhotoImage(img)
+
+    # Display the image on the canvas
+    canvas.create_image(450, 80, image=img_tk, anchor="nw")
+
+    # Keep a reference to the image to avoid garbage collection
+    canvas.img_tk = img_tk  # Save the image reference in the canvas
+
+
+def FinalScreen(window: tk.Tk, application_state: dict, qrCode: str):
+    back_to_home = Image.open("./assets/back_to_home.png")
+
     back_to_home_image = ImageTk.PhotoImage(back_to_home)
-    qr_code_image = ImageTk.PhotoImage(qr_code)
 
     canvas = Canvas(
         window,
@@ -30,24 +63,6 @@ def FinalScreen(window: tk.Tk, application_state: dict):
     canvas.place(x=0, y=0)
 
     canvas.create_text(
-        269.0,
-        19.0,
-        anchor="nw",
-        text="Name | Logo",
-        fill="#000000",
-        font=("Kadwa Bold", 30),
-    )
-
-    canvas.create_text(
-        701.0,
-        15.0,
-        anchor="nw",
-        text=((application_state.get("WIFI")).value),
-        fill="#515050",
-        font=("Kadwa Regular", 10),
-    )
-
-    canvas.create_text(
         300.0,
         70.0,
         anchor="nw",
@@ -55,19 +70,6 @@ def FinalScreen(window: tk.Tk, application_state: dict):
         fill="#515050",
         font=("Kadwa Regular", 20),
     )
-
-    canvas.create_image(
-        677,
-        10,
-        anchor=tk.NW,
-        image=(
-            connected_image
-            if application_state.get("WIFI") == WIFI_STATE.CONNECTED
-            else not_connected_image
-        ),
-    )
-    canvas.image2 = connected_image
-    canvas.image3 = not_connected_image
 
     back_to_home_image_button = tk.Label(
         window,
@@ -96,13 +98,6 @@ def FinalScreen(window: tk.Tk, application_state: dict):
         font=("Kadwa Regular", 15),
     )
 
-    canvas.create_image(
-        450,
-        80,
-        anchor=tk.NW,
-        image=qr_code_image,
-    )
-    canvas.image5 = qr_code_image
     canvas.create_text(
         450.0,
         400.0,
@@ -111,5 +106,16 @@ def FinalScreen(window: tk.Tk, application_state: dict):
         fill="#000000",
         font=("Kadwa Regular", 15),
     )
+
+    generate_qr_on_canvas(canvas, qrCode)
+
+    # Function for displaying name and logo
+    Add_Name_Logo(canvas)
+
+    # Function for displaying date and time
+    Add_date_time(window)
+
+    # Function for displaying Wi-Fi status
+    Add_Wifi_Status(canvas, application_state)
 
     return canvas

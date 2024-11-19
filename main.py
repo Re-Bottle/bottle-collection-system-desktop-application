@@ -1,5 +1,5 @@
 import tkinter as tk
-from screens import HomeScreen
+from screens import BottleDetectedLoadingScreen, HomeScreen
 from misc.utility import WIFI_STATE, ApplicationState
 
 
