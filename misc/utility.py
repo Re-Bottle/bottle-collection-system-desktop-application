@@ -36,12 +36,25 @@ class ApplicationState:
 import re
 
 
+def validate_login_pass(login_pass):
+    """
+    Validates the login password.
+    Basic requirements are:
+        length should be 5
+        only numbers
+    """
+    if not login_pass:
+        return False
+    if len(login_pass) != 6:
+        return False
+    return True
+
+
 def validate_wifi_credentials(ssid, password):
     """
     Validate the Wi-Fi credentials by checking if the SSID and password are not empty,
     if they meet basic length and character requirements, and if the password is complex enough.
     """
-    print(password)
     # Check if SSID is empty
     if not ssid:
         return False

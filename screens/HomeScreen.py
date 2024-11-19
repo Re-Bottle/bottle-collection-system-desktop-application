@@ -5,7 +5,9 @@ from components.date_time import Add_date_time
 from components.name_logo import Add_Name_Logo
 from components.wifi_status import Add_Wifi_Status
 from misc.utility import ApplicationState
-from screens import SettingsScreen
+
+# from screens import SettingsScreen
+from screens import LoginScreen
 
 
 def HomeScreen(window: tk.Tk, application_state: ApplicationState):
@@ -71,7 +73,8 @@ def HomeScreen(window: tk.Tk, application_state: ApplicationState):
     settings_button.image = settings_image
     settings_button.bind(
         "<Button-1>",
-        lambda _: SettingsScreen.SettingsScreen(window, application_state),
+        # lambda _: SettingsScreen.SettingsScreen(window, application_state),
+        lambda _: LoginScreen.LoginScreen(window, application_state),
     )
     settings_button.place(x=561, y=393)
 
