@@ -132,7 +132,7 @@ def connect_wifi_windows(name, SSID, password):
 </WLANProfile>"""
     )
     disconnect_command = "netsh wlan disconnect"
-    command = 'netsh wlan add profile filename="' + name + '.xml"' + " interface=Wi-Fi"
+    command = 'netsh wlan add profile filename="' + name + '.xml"' + " interface=WiFi"
     connect_command = "netsh wlan connect name=" + name
 
     with open(name + ".xml", "w") as file:
@@ -141,7 +141,7 @@ def connect_wifi_windows(name, SSID, password):
         os.system(command)
         os.system(disconnect_command)
         subprocess.run(connect_command, check=True, shell=True)
-        return True
+        return get_wifi_state(True)
     except subprocess.CalledProcessError as e:
         return False
 
@@ -239,7 +239,7 @@ def list_available_wifi_linux(should_refresh=True):
         return []
 
 
-def get_wifi_state():
+def get_wifi_state(should_delay=False):
     """
     Get the current Wi-Fi connection status based on the operating system.
     Returns True if connected, False if not connected, and None if the state could not be determined.
@@ -247,7 +247,7 @@ def get_wifi_state():
     current_os = platform.system().lower()
 
     if current_os == "windows":
-        return get_wifi_state_windows()
+        return get_wifi_state_windows(should_delay)
     elif current_os == "linux":
         return get_wifi_state_linux()
     else:
@@ -257,7 +257,9 @@ def get_wifi_state():
         return None
 
 
-def get_wifi_state_windows():
+def get_wifi_state_windows(should_delay=False):
+    if should_delay:
+        time.sleep(5)
     try:
         # Run netsh command to show WLAN interfaces
         result = subprocess.run(
@@ -266,7 +268,11 @@ def get_wifi_state_windows():
             text=True,
             capture_output=True,
         )
-        return "State" in result.stdout and not "disconnected" in result.stdout.lower()
+        return "State" in result.stdout and not (
+            "disconnected" in result.stdout.lower()
+            or "authenticating" in result.stdout.lower()
+            or "associating" in result.stdout.lower()
+        )
     except subprocess.CalledProcessError:
         print("Error checking Wi-Fi state.")
         return False

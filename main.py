@@ -1,13 +1,11 @@
 import tkinter as tk
-from screens import HomeScreen
+from screens import BottleDetectedLoadingScreen, HomeScreen
 from misc.utility import WIFI_STATE, ApplicationState
 
 
 def on_escape(event=None):
     window.quit()
 
-
-application_state = ApplicationState()
 
 if __name__ == "__main__":
     # Main Window
@@ -18,6 +16,7 @@ if __name__ == "__main__":
     window.title("Bottle Collection System")
     window.bind("<Escape>", on_escape)
 
+    application_state = ApplicationState()
     HomeScreenCanvas = HomeScreen.HomeScreen(window, application_state)
 
     window.mainloop()

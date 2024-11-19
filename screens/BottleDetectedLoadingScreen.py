@@ -5,7 +5,6 @@ from PIL import Image, ImageTk
 from components.date_time import Add_date_time
 from components.name_logo import Add_Name_Logo
 from components.wifi_status import Add_Wifi_Status
-from main import WIFI_STATE
 
 from misc.utility import ApplicationState
 from screens import HomeScreen, FinalScreen
@@ -46,7 +45,9 @@ def BottleDetectedLoadingScreen(window: tk.Tk, application_state: ApplicationSta
 
     def load_final_screen():
         progress_bar.stop()  # Stop the progress bar animation
-        FinalScreen.FinalScreen(window, application_state)  # Go to next screen
+        FinalScreen.FinalScreen(
+            window, application_state, "Hello World"
+        )  # Go to next screen
 
     window.after(5000, load_final_screen)
 
