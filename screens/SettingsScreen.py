@@ -7,7 +7,12 @@ from components.name_logo import Add_Name_Logo
 from components.wifi_status import Add_Wifi_Status
 
 from misc.utility import ApplicationState, restart
-from screens import HomeScreen, ConfigureWiFiScreen, BottleDetectedLoadingScreen
+from screens import (
+    HomeScreen,
+    ConfigureWiFiScreen,
+    BottleDetectedLoadingScreen,
+    RegisterDeviceScreen,
+)
 
 
 def SettingsScreen(window: tk.Tk, application_state: ApplicationState):
@@ -57,11 +62,23 @@ def SettingsScreen(window: tk.Tk, application_state: ApplicationState):
     # Restart Device
     button_restart = tk.Label(
         window,
-        text="> Restart",
+        text="> Restart Device",
     )
     button_restart.bind("<Button-1>", lambda _: restart())
     button_restart.place(x=163, y=255)
 
+    # Register Device
+    button_register = tk.Label(
+        window,
+        text="> Register Device",
+    )
+    button_register.bind(
+        "<Button-1>",
+        lambda _: RegisterDeviceScreen.RegisterDeviceScreen(window, application_state),
+    )
+    button_register.place(x=163, y=305)
+
+    # Back button
     back_image = ImageTk.PhotoImage(back)
     back_button = tk.Label(
         window,
