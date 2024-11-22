@@ -3,6 +3,8 @@ import os
 import subprocess
 import platform
 import time
+import winreg
+import hashlib
 
 
 class WIFI_STATE(Enum):
@@ -46,6 +48,8 @@ def validate_login_pass(login_pass):
     if not login_pass:
         return False
     if len(login_pass) != 6:
+        return False
+    if not login_pass.isdigit():
         return False
     return True
 
@@ -317,6 +321,93 @@ def restart_windows():
     """Restart the system on Windows."""
     print("Restarting the system...")
     subprocess.run(["shutdown", "/r", "/t", "0"])  # /r = restart, /t 0 = no delay
+
+
+def hash_passcode(passcode: str) -> str:
+    """
+    Hash the passcode using SHA-256
+    Create a SHA-256 hash object
+    Update the hash object with the passcode (encoded to bytes)
+    Return the hexadecimal representation of the hash
+    """
+    sha256_hash = hashlib.sha256()
+    sha256_hash.update(passcode.encode("utf-8"))
+    return sha256_hash.hexdigest()
+
+
+def save_passcode_to_registry(passcode: str):
+    """
+    Save hashed passcode in the Windows registry
+    Create a registry key under HKEY_CURRENT_USER\Software\MyApp
+    Set the hashed passcode under the "Passcode" name
+    """
+    try:
+        hashed_passcode = hash_passcode(passcode)
+
+        key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\MyApp")
+        winreg.SetValueEx(key, "Passcode", 0, winreg.REG_SZ, hashed_passcode)
+        winreg.CloseKey(key)
+        print("Hashed passcode saved successfully in the registry.")
+    except Exception as e:
+        print(f"Failed to save passcode to registry: {e}")
+
+
+def load_passcode_from_registry():
+    """
+    Load passcode from the Windows registry
+    Open the registry key where the passcode is stored
+    Read the passcode value
+    If the registry key doesn't exist, return None
+    Close the registry key
+    """
+    try:
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\MyApp")
+        passcode, _ = winreg.QueryValueEx(key, "Passcode")
+        winreg.CloseKey(key)
+        return passcode
+    except FileNotFoundError:
+        return None  # If the registry key doesn't exist, return None
+    except Exception as e:
+        print(f"Failed to load passcode from registry: {e}")
+        return None
+
+
+def save_passcode_to_file(passcode: str):
+    """Save passcode to a file on Linux"""
+    config_path = os.path.expanduser("~/.myapp_config")
+    try:
+        with open(config_path, "w") as f:
+            f.write(passcode)
+        print("Passcode saved successfully to file.")
+    except Exception as e:
+        print(f"Failed to save passcode to file: {e}")
+
+
+def load_passcode_from_file():
+    """Load passcode from a file on Linux"""
+    config_path = os.path.expanduser("~/.myapp_config")
+    if os.path.exists(config_path):
+        try:
+            with open(config_path, "r") as f:
+                return f.read().strip()
+        except Exception as e:
+            print(f"Failed to load passcode from file: {e}")
+            return None
+    return None  # If the file doesn't exist, return None
+
+
+def save_passcode(passcode: str):
+    if platform.system().lower() == "windows":
+        save_passcode_to_registry(passcode)
+    else:
+        save_passcode_to_file(passcode)
+
+
+def load_passcode():
+    if platform.system().lower() == "windows":
+        return load_passcode_from_registry()
+    else:
+        return load_passcode_from_file()
 
 
 # Example usage:

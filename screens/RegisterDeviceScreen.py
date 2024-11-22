@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import Canvas, messagebox, ttk
+from tkinter import Canvas, ttk
 from PIL import Image, ImageTk
 
 from components.date_time import Add_date_time

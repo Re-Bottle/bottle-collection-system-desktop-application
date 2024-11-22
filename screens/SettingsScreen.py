@@ -12,6 +12,7 @@ from screens import (
     ConfigureWiFiScreen,
     BottleDetectedLoadingScreen,
     RegisterDeviceScreen,
+    ChangePasswordScreen,
 )
 
 
@@ -40,7 +41,7 @@ def SettingsScreen(window: tk.Tk, application_state: ApplicationState):
 
     # card
     card_x1, card_y1 = 150, 172
-    card_width, card_height = 500, 200
+    card_width, card_height = 500, 250
     card_x2, card_y2 = card_x1 + card_width, card_y1 + card_height
 
     canvas.create_rectangle(
@@ -77,6 +78,17 @@ def SettingsScreen(window: tk.Tk, application_state: ApplicationState):
         lambda _: RegisterDeviceScreen.RegisterDeviceScreen(window, application_state),
     )
     button_register.place(x=163, y=305)
+
+    # Change Password
+    button_register = tk.Label(
+        window,
+        text="> Change Settings Password",
+    )
+    button_register.bind(
+        "<Button-1>",
+        lambda _: ChangePasswordScreen.ChangePasswordScreen(window, application_state),
+    )
+    button_register.place(x=163, y=355)
 
     # Back button
     back_image = ImageTk.PhotoImage(back)

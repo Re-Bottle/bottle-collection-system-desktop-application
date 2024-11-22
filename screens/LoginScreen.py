@@ -1,13 +1,20 @@
 import tkinter as tk
-from tkinter import Canvas, messagebox
+from tkinter import Canvas
 from PIL import Image, ImageTk
 
 from components.date_time import Add_date_time
 from components.name_logo import Add_Name_Logo
 from components.wifi_status import Add_Wifi_Status
 from components.keyboard import Add_Keyboard
+from components.message_box import show_custom_error, show_custom_info
 
-from misc.utility import ApplicationState, validate_login_pass
+from misc.utility import (
+    ApplicationState,
+    validate_login_pass,
+    load_passcode,
+    save_passcode,
+    hash_passcode,
+)
 from screens import HomeScreen, SettingsScreen
 
 from main import WIFI_STATE
@@ -22,28 +29,49 @@ def on_login_button_click(
     6 num password - 123456
     """
     if not validate_login_pass(login_pass):
-        messagebox.showerror(
+        show_custom_error(
             "Invalid passcode",
-            f"Please check your credentials.",
+            "Please check your credentials.",
+            x=300,
+            y=300,
         )
         return
 
-    success = login_pass == "123456"
-
-    # Show appropriate message box
-    if success:
-        messagebox.showinfo(
+    if verify_passcode(login_pass):
+        show_custom_info(
             "Login Successful",
-            f"Successfully logged in!",
+            "Successfully logged in!",
+            x=300,
+            y=300,
         )
-
         SettingsScreen.SettingsScreen(window, application_state)
-
     else:
-        messagebox.showerror(
+        show_custom_error(
             "Connection Failed",
-            f"Failed to Login. Please check your credentials.",
+            "Failed to Login. Please check your credentials.",
+            x=300,
+            y=300,
         )
+
+
+def verify_passcode(user_input: str):
+    """Verify if the user input matches the stored hashed passcode"""
+    # Load the hashed passcode stored in the registry
+    stored_passcode = load_passcode()
+
+    if stored_passcode is None:
+        save_passcode("123456")
+        # print("No passcode found in the registry. Default passcode can be used.")
+
+    # Hash the user input and compare it with the stored hash
+    hashed_input = hash_passcode(user_input)
+
+    if hashed_input == stored_passcode:
+        # print("Passcode verified successfully!")
+        return True
+    else:
+        # print("Invalid passcode!")
+        return False
 
 
 def LoginScreen(window: tk.Tk, application_state: ApplicationState):
@@ -68,12 +96,12 @@ def LoginScreen(window: tk.Tk, application_state: ApplicationState):
         window,
         text=f"Passcode",
         font=("Arial", 16),
-        borderwidth=0,  # Remove the border
-        highlightthickness=0,  # Remove the highlight border
-        relief="flat",  # Set the button relief to "flat" to avoid any raised or sunken borders
-        bg="#FFFFFF",  # Set the background color to the same as the window
-        padx=10,  # Add horizontal padding (space around the image)
-        pady=10,  # Add vertical padding (space around the image)
+        borderwidth=0,
+        highlightthickness=0,
+        relief="flat",
+        bg="#FFFFFF",
+        padx=10,
+        pady=10,
     )
     passcode.place(x=115, y=150)
     passcode_var = tk.StringVar()
@@ -94,12 +122,12 @@ def LoginScreen(window: tk.Tk, application_state: ApplicationState):
     back_button = tk.Label(
         window,
         image=back_image,
-        borderwidth=0,  # Remove the border
-        highlightthickness=0,  # Remove the highlight border
-        relief="flat",  # Set the button relief to "flat" to avoid any raised or sunken borders
-        bg="#FFFFFF",  # Set the background color to the same as the window
-        padx=10,  # Add horizontal padding (space around the image)
-        pady=10,  # Add vertical padding (space around the image)
+        borderwidth=0,
+        highlightthickness=0,
+        relief="flat",
+        bg="#FFFFFF",
+        padx=10,
+        pady=10,
     )
     back_button.image = back_image
     back_button.bind(
@@ -128,7 +156,7 @@ def LoginScreen(window: tk.Tk, application_state: ApplicationState):
     login_button.place(x=600, y=81)
 
     # Function for displaying keyboard
-    Add_Keyboard(window, passcode_var)
+    Add_Keyboard(window, passcode_var, 6)
 
     # Function for displaying name and logo
     Add_Name_Logo(canvas)

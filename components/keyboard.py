@@ -4,6 +4,7 @@ import tkinter as tk
 def Add_Keyboard(
     window: tk.Tk,
     passcode_var: tk.StringVar,
+    char_limit: int = 64,
 ):
     # Virtual Keyboard buttons
     keyboard_buttons = [
@@ -82,7 +83,7 @@ def Add_Keyboard(
         if shift_active and char.isalpha():
             char = char.upper()
         current_text = passcode_var.get()
-        if len(current_text) >= 6:
+        if len(current_text) >= char_limit:
             return
         passcode_var.set(current_text + char)
 
