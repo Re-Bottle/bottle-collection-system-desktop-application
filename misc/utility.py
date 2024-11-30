@@ -3,7 +3,6 @@ import os
 import subprocess
 import platform
 import time
-import winreg
 import hashlib
 
 
@@ -335,24 +334,26 @@ def hash_passcode(passcode: str) -> str:
     return sha256_hash.hexdigest()
 
 
-def save_passcode_to_registry(passcode: str):
+def save_passcode_to_registry(passcode: str, name: str = "Passcode"):
     """
     Save hashed passcode in the Windows registry
     Create a registry key under HKEY_CURRENT_USER\Software\MyApp
     Set the hashed passcode under the "Passcode" name
     """
+    import winreg
+
     try:
         hashed_passcode = hash_passcode(passcode)
 
         key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\MyApp")
-        winreg.SetValueEx(key, "Passcode", 0, winreg.REG_SZ, hashed_passcode)
+        winreg.SetValueEx(key, name, 0, winreg.REG_SZ, hashed_passcode)
         winreg.CloseKey(key)
         print("Hashed passcode saved successfully in the registry.")
     except Exception as e:
         print(f"Failed to save passcode to registry: {e}")
 
 
-def load_passcode_from_registry():
+def load_passcode_from_registry(name: str = "Passcode"):
     """
     Load passcode from the Windows registry
     Open the registry key where the passcode is stored
@@ -360,9 +361,11 @@ def load_passcode_from_registry():
     If the registry key doesn't exist, return None
     Close the registry key
     """
+    import winreg
+
     try:
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\MyApp")
-        passcode, _ = winreg.QueryValueEx(key, "Passcode")
+        passcode, _ = winreg.QueryValueEx(key, name)
         winreg.CloseKey(key)
         return passcode
     except FileNotFoundError:
@@ -398,6 +401,8 @@ def load_passcode_from_file():
 
 def save_passcode(passcode: str):
     if platform.system().lower() == "windows":
+        import winreg
+
         save_passcode_to_registry(passcode)
     else:
         save_passcode_to_file(passcode)
