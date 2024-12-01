@@ -5,16 +5,9 @@ from PIL import Image, ImageTk
 from components.date_time import Add_date_time
 from components.name_logo import Add_Name_Logo
 from components.wifi_status import Add_Wifi_Status
-from components.keyboard import Add_Keyboard
 from components.message_box import show_custom_error, show_custom_info
 
-from misc.utility import (
-    ApplicationState,
-    validate_login_pass,
-    load_passcode,
-    save_passcode,
-    hash_passcode,
-)
+from misc.utility import ApplicationState, validate_login_pass, verify_passcode
 from screens import HomeScreen, SettingsScreen
 
 from main import WIFI_STATE
@@ -52,26 +45,6 @@ def on_login_button_click(
             x=300,
             y=300,
         )
-
-
-def verify_passcode(user_input: str):
-    """Verify if the user input matches the stored hashed passcode"""
-    # Load the hashed passcode stored in the registry
-    stored_passcode = load_passcode()
-
-    if stored_passcode is None:
-        save_passcode("123456")
-        # print("No passcode found in the registry. Default passcode can be used.")
-
-    # Hash the user input and compare it with the stored hash
-    hashed_input = hash_passcode(user_input)
-
-    if hashed_input == stored_passcode:
-        # print("Passcode verified successfully!")
-        return True
-    else:
-        # print("Invalid passcode!")
-        return False
 
 
 def LoginScreen(window: tk.Tk, application_state: ApplicationState):
@@ -156,7 +129,7 @@ def LoginScreen(window: tk.Tk, application_state: ApplicationState):
     login_button.place(x=600, y=81)
 
     # Function for displaying keyboard
-    Add_Keyboard(window, passcode_var, 6)
+    # Add_Keyboard(window, passcode_var, 6)
 
     # Function for displaying name and logo
     Add_Name_Logo(canvas)

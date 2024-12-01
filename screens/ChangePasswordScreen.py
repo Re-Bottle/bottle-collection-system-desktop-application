@@ -5,7 +5,6 @@ from PIL import Image, ImageTk
 from components.date_time import Add_date_time
 from components.name_logo import Add_Name_Logo
 from components.wifi_status import Add_Wifi_Status
-from components.keyboard import Add_Keyboard
 from components.message_box import show_custom_error, show_custom_info
 
 from misc.utility import (
@@ -126,9 +125,6 @@ def ChangePasswordScreen(window: tk.Tk, application_state: ApplicationState):
     )
     update_button.image = update_image
     update_button.place(x=600, y=81)
-
-    # Function for displaying keyboard
-    Add_Keyboard(window, passcode_var)
 
     # Function for displaying name and logo
     Add_Name_Logo(canvas)
