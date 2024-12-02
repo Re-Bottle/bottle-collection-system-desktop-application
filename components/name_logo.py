@@ -3,10 +3,10 @@ import tkinter as tk
 
 def Add_Name_Logo(canvas: tk.Canvas):
     canvas.create_text(
-        269.0,
+        250.0,
         19.0,
         anchor="nw",
-        text="Name | Logo",
+        text="Re-Bottle",
         fill="#000000",
         font=("Kadwa Bold", 30),
     )

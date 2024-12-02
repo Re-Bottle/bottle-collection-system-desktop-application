@@ -20,9 +20,14 @@ def show_custom_error(title, message, x=300, y=300):
     button = tk.Button(top, text="OK", command=top.destroy, bg="red", fg="white")
     button.pack(pady=(5, 10))
 
+    # Delay grab_set to ensure the window is fully initialized
+    top.after(100, lambda: top.grab_set())  # Delay grab_set by 100ms
+
     top.transient()  # Set as a dialog
-    top.grab_set()  # Prevent interaction with other windows
-    top.wait_window(top)
+    top.deiconify()  # Ensure it's visible
+    top.update()  # Make sure it's fully initialized
+
+    top.mainloop()  # Start the window's event loop to allow interaction
 
 
 def show_custom_info(title, message, x=300, y=300):
@@ -44,6 +49,11 @@ def show_custom_info(title, message, x=300, y=300):
     button = tk.Button(top, text="OK", command=top.destroy, bg="blue", fg="white")
     button.pack(pady=(5, 10))
 
-    top.transient()
-    top.grab_set()
-    top.wait_window(top)
+    # Delay grab_set to ensure the window is fully initialized
+    top.after(100, lambda: top.grab_set())  # Delay grab_set by 100ms
+
+    top.transient()  # Set as a dialog
+    top.deiconify()  # Ensure it's visible
+    top.update()  # Make sure it's fully initialized
+
+    top.mainloop()  # Start the window's event loop to allow interaction

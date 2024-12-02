@@ -20,7 +20,7 @@ def Add_date_time(window: tk.Tk):
         fg="#515050",
         bg="#FFFFFF",
     )
-    date_display.place(x=60, y=10)
+    date_display.place(x=80, y=10)
 
     def time():
         # Get current date and time

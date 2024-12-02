@@ -1,12 +1,6 @@
-from gpiozero import LED  # type: ignore
-from time import sleep
+def turn_on_led_test():
+    from gpiozero import LED  # type: ignore
 
-led = LED(17)
-
-while True:
+    led = LED(17)
     led.on()
     print("\rLED ON", end="")
-    sleep(1)
-    led.off()
-    print("\rLED OFF", end="")
-    sleep(1)

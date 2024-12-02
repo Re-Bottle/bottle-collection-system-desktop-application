@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import Canvas
 from PIL import Image, ImageTk
+import subprocess
 
 from components.date_time import Add_date_time
 from components.name_logo import Add_Name_Logo
@@ -11,6 +12,10 @@ from misc.utility import ApplicationState, validate_login_pass, verify_passcode
 from screens import HomeScreen, SettingsScreen
 
 from main import WIFI_STATE
+
+
+def open_keyboard():
+    subprocess.run(["matchbox-keyboard"])
 
 
 def on_login_button_click(
@@ -127,6 +132,10 @@ def LoginScreen(window: tk.Tk, application_state: ApplicationState):
     )
     login_button.image = login_image
     login_button.place(x=600, y=81)
+
+    # Keyboard button
+    keyboard_button = tk.Button(window, text="Open Keyboard", command=open_keyboard)
+    keyboard_button.place(x=600, y=150)
 
     # Function for displaying keyboard
     # Add_Keyboard(window, passcode_var, 6)
