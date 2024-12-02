@@ -16,7 +16,7 @@ def Add_Device_Reg_Status(canvas: tk.Canvas, device_registration_status: str):
 
     # Add text to indicate status
     canvas.create_text(
-        600.0,
+        580.0,
         15.0,
         anchor="nw",
         text=device_registration_status,
@@ -25,7 +25,7 @@ def Add_Device_Reg_Status(canvas: tk.Canvas, device_registration_status: str):
     )
 
     canvas.create_image(
-        570,
+        550,
         10,
         anchor=tk.NW,
         image=(
