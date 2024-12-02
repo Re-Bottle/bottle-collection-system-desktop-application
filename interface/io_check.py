@@ -6,5 +6,7 @@ GPIO.setwarnings(False)  # disable warnings
 GPIO.setmode(GPIO.BOARD)  # set pin numbering format
 GPIO.setup(LED, GPIO.OUT)  # set GPIO as output
 
+
 # Turn ON LED
-GPIO.output(LED, GPIO.HIGH)
+def turn_on_led_test():
+    GPIO.output(LED, GPIO.HIGH)
