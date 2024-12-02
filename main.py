@@ -1,5 +1,6 @@
 import tkinter as tk
-from interface.io_check import turn_on_led_test
+
+# from interface.io_check import turn_on_led_test
 from screens import BottleDetectedLoadingScreen, HomeScreen
 from misc.utility import WIFI_STATE, ApplicationState
 
