@@ -15,6 +15,7 @@ if __name__ == "__main__":
     window.configure(bg="#FFFFFF")
     window.title("Bottle Collection System")
     window.bind("<Escape>", on_escape)
+    window.bind("<Button-2>", on_escape)
 
     application_state = ApplicationState()
     HomeScreenCanvas = HomeScreen.HomeScreen(window, application_state)

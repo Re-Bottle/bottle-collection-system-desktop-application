@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 from components.date_time import Add_date_time
 from components.name_logo import Add_Name_Logo
 from components.wifi_status import Add_Wifi_Status
+from components.device_reg_status import Add_Device_Reg_Status
 from misc.utility import ApplicationState
 
 # from screens import SettingsScreen
@@ -86,5 +87,7 @@ def HomeScreen(window: tk.Tk, application_state: ApplicationState):
 
     # Function for displaying Wi-Fi status
     Add_Wifi_Status(canvas, application_state)
+
+    Add_Device_Reg_Status(canvas, "Unregistered")
 
     return canvas
