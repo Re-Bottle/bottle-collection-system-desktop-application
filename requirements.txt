@@ -2,3 +2,4 @@ winwifi #https://github.com/mrjohannchang/winwifi?tab=readme-ov-file
 pillow
 qrcode[pil]
 python-pam
+python3-gpiozero
