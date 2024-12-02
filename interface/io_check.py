@@ -1,12 +1,12 @@
-import RPi.GPIO as GPIO  # import RPi.GPIO module
+from gpiozero import LED  # type: ignore
+from time import sleep
 
-LED = 11  # pin no. as per BOARD, GPIO18 as per BCM
+led = LED(17)
 
-GPIO.setwarnings(False)  # disable warnings
-GPIO.setmode(GPIO.BOARD)  # set pin numbering format
-GPIO.setup(LED, GPIO.OUT)  # set GPIO as output
-
-
-# Turn ON LED
-def turn_on_led_test():
-    GPIO.output(LED, GPIO.HIGH)
+while True:
+    led.on()
+    print("\rLED ON", end="")
+    sleep(1)
+    led.off()
+    print("\rLED OFF", end="")
+    sleep(1)

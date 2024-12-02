@@ -1,4 +1,5 @@
 import tkinter as tk
+
 from interface.io_check import turn_on_led_test
 from screens import BottleDetectedLoadingScreen, HomeScreen
 from misc.utility import WIFI_STATE, ApplicationState
@@ -22,6 +23,6 @@ if __name__ == "__main__":
     HomeScreenCanvas = HomeScreen.HomeScreen(window, application_state)
 
     # Test Code for IO
-    # turn_on_led_test()
+    turn_on_led_test()
 
     window.mainloop()
