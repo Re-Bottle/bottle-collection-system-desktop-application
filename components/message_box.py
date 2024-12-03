@@ -1,9 +1,11 @@
 import tkinter as tk
 
 
-def show_custom_error(title, message, x=300, y=300):
+def show_custom_error(
+    root: tk.Tk, title: str, message: str, x: int = 300, y: int = 300
+):
     """Custom error messagebox at a specific position."""
-    top = tk.Toplevel()
+    top = tk.Toplevel(root)
     top.title(title)
     top.geometry(f"+{x}+{y}")
     top.resizable(False, False)
@@ -23,22 +25,19 @@ def show_custom_error(title, message, x=300, y=300):
     # Delay grab_set to ensure the window is fully initialized
     top.after(100, lambda: top.grab_set())  # Delay grab_set by 100ms
 
-    top.transient()  # Set as a dialog
-    top.deiconify()  # Ensure it's visible
-    top.update()  # Make sure it's fully initialized
-
-    top.mainloop()  # Start the window's event loop to allow interaction
+    top.transient(root)  # Set as a dialog
+    root.wait_window(top)
 
 
-def show_custom_info(title, message, x=300, y=300):
+def show_custom_info(root: tk.Tk, title: str, message: str, x: int = 300, y: int = 300):
     """Custom info messagebox at a specific position."""
-    top = tk.Toplevel()
+    top = tk.Toplevel(root)
     top.title(title)
     top.geometry(f"+{x}+{y}")
     top.resizable(False, False)
 
     # Info icon
-    label = tk.Label(top, text="ℹ️", font=("Arial", 20), fg="blue")
+    label = tk.Label(top, text="ℹ", font=("Arial", 20), fg="blue")
     label.pack(pady=(10, 5))
 
     # Info message
@@ -52,8 +51,5 @@ def show_custom_info(title, message, x=300, y=300):
     # Delay grab_set to ensure the window is fully initialized
     top.after(100, lambda: top.grab_set())  # Delay grab_set by 100ms
 
-    top.transient()  # Set as a dialog
-    top.deiconify()  # Ensure it's visible
-    top.update()  # Make sure it's fully initialized
-
-    top.mainloop()  # Start the window's event loop to allow interaction
+    top.transient(root)  # Set as a dialog
+    root.wait_window(top)

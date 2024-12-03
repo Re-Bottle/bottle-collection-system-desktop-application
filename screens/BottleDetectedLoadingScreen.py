@@ -1,17 +1,15 @@
 import tkinter as tk
 from tkinter import Canvas, ttk
-from PIL import Image, ImageTk
 
 from components.date_time import Add_date_time
 from components.name_logo import Add_Name_Logo
 from components.wifi_status import Add_Wifi_Status
 
 from misc.utility import ApplicationState
-from screens import HomeScreen, FinalScreen
+from screens import FinalScreen
 
 
 def BottleDetectedLoadingScreen(window: tk.Tk, application_state: ApplicationState):
-    back = Image.open("./assets/back.png")
 
     canvas = Canvas(
         window,

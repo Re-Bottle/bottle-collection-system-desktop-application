@@ -1,17 +1,17 @@
 import tkinter as tk
-from tkinter import Canvas, ttk
+from tkinter import Canvas
 from PIL import Image, ImageTk
 import qrcode
 
 from components.date_time import Add_date_time
 from components.name_logo import Add_Name_Logo
 from components.wifi_status import Add_Wifi_Status
-from main import WIFI_STATE
 
+from misc.utility import ApplicationState
 from screens import HomeScreen
 
 
-def generate_qr_on_canvas(canvas, text):
+def generate_qr_on_canvas(canvas: tk.Canvas, text: str):
     """
     Generates a QR code from the provided text and displays it on the given Tkinter Canvas.
 
@@ -26,7 +26,7 @@ def generate_qr_on_canvas(canvas, text):
     # Generate QR code
     qr = qrcode.QRCode(
         version=1,  # QR code size (1-40)
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        error_correction=qrcode.ERROR_CORRECT_L,
         box_size=10,  # Size of each box in the QR code
         border=4,  # Border thickness
     )
@@ -37,16 +37,18 @@ def generate_qr_on_canvas(canvas, text):
     img = qr.make_image(fill="black", back_color="white")
 
     # Convert the image to a format Tkinter can display
-    img_tk = ImageTk.PhotoImage(img)
+    img_tk = ImageTk.PhotoImage(img)  # type: ignore
 
     # Display the image on the canvas
-    canvas.create_image(450, 80, image=img_tk, anchor="nw")
+    canvas.create_image(450, 80, image=img_tk, anchor="nw")  # type: ignore
 
     # Keep a reference to the image to avoid garbage collection
-    canvas.img_tk = img_tk  # Save the image reference in the canvas
+    canvas.img_tk = img_tk  # type: ignore as we are doing this to keep reference to image
 
 
-def FinalScreen(window: tk.Tk, application_state: dict, qrCode: str):
+def FinalScreen(
+    window: tk.Tk, application_state: ApplicationState, qrCode: str
+) -> tk.Canvas:
     back_to_home = Image.open("./assets/back_to_home.png")
 
     back_to_home_image = ImageTk.PhotoImage(back_to_home)
@@ -73,7 +75,7 @@ def FinalScreen(window: tk.Tk, application_state: dict, qrCode: str):
 
     back_to_home_image_button = tk.Label(
         window,
-        image=back_to_home_image,
+        image=back_to_home_image,  # type: ignore
         borderwidth=0,  # Remove the border
         highlightthickness=0,  # Remove the highlight border
         relief="flat",  # Set the button relief to "flat" to avoid any raised or sunken borders
@@ -82,7 +84,7 @@ def FinalScreen(window: tk.Tk, application_state: dict, qrCode: str):
         pady=10,  # Add vertical padding (space around the image)
     )
 
-    back_to_home_image_button.image = back_to_home_image
+    back_to_home_image_button.image = back_to_home_image  # type: ignore as we are doing this to keep reference to image
     back_to_home_image_button.bind(
         "<Button-1>",
         lambda _: HomeScreen.HomeScreen(window, application_state),

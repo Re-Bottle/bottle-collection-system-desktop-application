@@ -1,9 +1,9 @@
 import tkinter as tk
 from tkinter import Canvas
-from PIL import Image, ImageTk
-import subprocess
 
 from components.date_time import Add_date_time
+from components.device_reg_status import Add_Device_Reg_Status
+from components.keyboard import Add_Keyboard
 from components.name_logo import Add_Name_Logo
 from components.wifi_status import Add_Wifi_Status
 from components.message_box import show_custom_error, show_custom_info
@@ -11,15 +11,9 @@ from components.message_box import show_custom_error, show_custom_info
 from misc.utility import ApplicationState, validate_login_pass, verify_passcode
 from screens import HomeScreen, SettingsScreen
 
-from main import WIFI_STATE
-
-
-def open_keyboard():
-    subprocess.run(["matchbox-keyboard"])
-
 
 def on_login_button_click(
-    login_pass, window: tk.Tk, application_state: ApplicationState
+    login_pass: str, window: tk.Tk, application_state: ApplicationState
 ):
     """
     Handler for when the login button is clicked. Attempts to login
@@ -28,15 +22,17 @@ def on_login_button_click(
     """
     if not validate_login_pass(login_pass):
         show_custom_error(
+            window,
             "Invalid passcode",
             "Please check your credentials.",
             x=300,
             y=300,
         )
-        return
+        return False
 
     if verify_passcode(login_pass):
         show_custom_info(
+            window,
             "Login Successful",
             "Successfully logged in!",
             x=300,
@@ -45,6 +41,7 @@ def on_login_button_click(
         SettingsScreen.SettingsScreen(window, application_state)
     else:
         show_custom_error(
+            window,
             "Connection Failed",
             "Failed to Login. Please check your credentials.",
             x=300,
@@ -53,9 +50,6 @@ def on_login_button_click(
 
 
 def LoginScreen(window: tk.Tk, application_state: ApplicationState):
-    # Load Images
-    back = Image.open("./assets/back.png")
-    login = Image.open("./assets/login.png")
 
     # Create Canvas for layout
     canvas = Canvas(
@@ -90,13 +84,13 @@ def LoginScreen(window: tk.Tk, application_state: ApplicationState):
         font=("Arial", 16),
         width=6,
         bd=0,
-        relief="flat",
+        relief="solid",
         justify="left",
         bg="#FFFFFF",
     )
     passcode_entry.place(x=120, y=200)
 
-    back_image = ImageTk.PhotoImage(back)
+    back_image = tk.PhotoImage(file="./assets/back.png")
     back_button = tk.Label(
         window,
         image=back_image,
@@ -107,7 +101,7 @@ def LoginScreen(window: tk.Tk, application_state: ApplicationState):
         padx=10,
         pady=10,
     )
-    back_button.image = back_image
+    back_button.image = back_image  # type: ignore as we are doing this to keep reference to image
     back_button.bind(
         "<Button-1>",
         lambda _: HomeScreen.HomeScreen(window, application_state),
@@ -115,7 +109,7 @@ def LoginScreen(window: tk.Tk, application_state: ApplicationState):
     back_button.place(x=66, y=81)
 
     # Login button
-    login_image = ImageTk.PhotoImage(login)
+    login_image = tk.PhotoImage(file="./assets/login.png")
     login_button = tk.Label(
         window,
         image=login_image,
@@ -130,15 +124,11 @@ def LoginScreen(window: tk.Tk, application_state: ApplicationState):
         "<Button-1>",
         lambda _: on_login_button_click(passcode_var.get(), window, application_state),
     )
-    login_button.image = login_image
+    login_button.image = login_image  # type: ignore as we are doing this to keep reference to image
     login_button.place(x=600, y=81)
 
-    # Keyboard button
-    keyboard_button = tk.Button(window, text="Open Keyboard", command=open_keyboard)
-    keyboard_button.place(x=600, y=150)
-
     # Function for displaying keyboard
-    # Add_Keyboard(window, passcode_var, 6)
+    Add_Keyboard(window, passcode_var, 6)
 
     # Function for displaying name and logo
     Add_Name_Logo(canvas)
@@ -148,5 +138,7 @@ def LoginScreen(window: tk.Tk, application_state: ApplicationState):
 
     # Function for displaying Wi-Fi status
     Add_Wifi_Status(canvas, application_state)
+
+    Add_Device_Reg_Status(canvas, application_state)
 
     return canvas

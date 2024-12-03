@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import Canvas, ttk
+from typing import List
 from PIL import Image, ImageTk
 from components.date_time import Add_date_time
 from components.name_logo import Add_Name_Logo
@@ -8,7 +9,6 @@ from screens import SettingsScreen, WiFiConnectScreen
 import threading
 
 from misc.utility import ApplicationState, list_available_wifi
-from main import WIFI_STATE
 
 
 is_disabled = False  # Fix: Boolean are not threadsafe, encapsulate in class
@@ -16,10 +16,10 @@ is_disabled = False  # Fix: Boolean are not threadsafe, encapsulate in class
 
 # This function updates the Listbox in the main thread
 def insert_into_listbox(
-    wifi_listbox: tk.Listbox, available_networks: list, window: tk.Tk
+    wifi_listbox: tk.Listbox, available_networks: List[str], window: tk.Tk
 ):
 
-    def update_listbox(wifi_listbox: tk.Listbox, available_networks: list):
+    def update_listbox(wifi_listbox: tk.Listbox, available_networks: List[str]):
         wifi_listbox.delete(0, tk.END)  # Clear the listbox
         if not available_networks:
             wifi_listbox.insert(tk.END, "No Wi-Fi networks found.")
@@ -37,17 +37,17 @@ def insert_into_listbox(
 
 
 def on_wifi_selected(
-    event,
+    _,
     listbox: tk.Listbox,
     window: tk.Tk,
     application_state: ApplicationState,
 ):
     # Get the index of the clicked item
-    selected_index: int = listbox.curselection()
+    selected_index: int = int(listbox.curselection())  # type: ignore
 
     if selected_index:
         # Get the item at the selected index
-        selected_item = listbox.get(selected_index)
+        selected_item: str = str(listbox.get(selected_index))  # type: ignore
         WiFiConnectScreen.WiFiConnectScreen(window, application_state, selected_item)
 
 
@@ -84,7 +84,7 @@ def hide_loading_indicator(
 
 
 # This function handles the Wi-Fi list reload when the refresh button is clicked
-def reload_button_handler(wifi_listbox, canvas, window):
+def reload_button_handler(wifi_listbox: tk.Listbox, canvas: tk.Canvas, window: tk.Tk):
     if is_disabled:
         return
 
@@ -138,7 +138,7 @@ def ConfigureWIFIScreen(window: tk.Tk, application_state: ApplicationState):
     back_image = ImageTk.PhotoImage(back)
     back_button = tk.Label(
         window,
-        image=back_image,
+        image=back_image,  # type: ignore
         borderwidth=0,
         highlightthickness=0,
         relief="flat",
@@ -154,7 +154,7 @@ def ConfigureWIFIScreen(window: tk.Tk, application_state: ApplicationState):
             else None
         ),
     )
-    back_button.image = back_image
+    back_button.image = back_image  # type: ignore as we are doing this to keep reference to image
     back_button.place(x=66, y=81)
 
     # Create a listbox to display the networks
@@ -166,7 +166,7 @@ def ConfigureWIFIScreen(window: tk.Tk, application_state: ApplicationState):
     refresh_image = ImageTk.PhotoImage(refresh)
     refresh_button = tk.Label(
         window,
-        image=refresh_image,
+        image=refresh_image,  # type: ignore
         borderwidth=0,
         highlightthickness=0,
         relief="flat",
@@ -178,7 +178,7 @@ def ConfigureWIFIScreen(window: tk.Tk, application_state: ApplicationState):
         "<Button-1>",
         lambda _: reload_button_handler(wifi_listbox, canvas, window),
     )
-    refresh_button.image = refresh_image
+    refresh_button.image = refresh_image  # type: ignore as we are doing this to keep reference to image
     refresh_button.place(x=700, y=81)
 
     # Load initial Wi-Fi networks

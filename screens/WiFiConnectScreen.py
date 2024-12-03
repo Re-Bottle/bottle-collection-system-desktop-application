@@ -10,10 +10,8 @@ from components.message_box import show_custom_error, show_custom_info
 from misc.utility import ApplicationState, connect_wifi, validate_wifi_credentials
 from screens import ConfigureWiFiScreen
 
-from main import WIFI_STATE
 
-
-def on_connect_button_click(wifi_name, password):
+def on_connect_button_click(window: tk.Tk, wifi_name: str, password: str):
     """
     Handler for when the connect button is clicked. Attempts to connect to the Wi-Fi
     and shows a success or error message.
@@ -21,6 +19,7 @@ def on_connect_button_click(wifi_name, password):
     # Call the connect_wifi function and check the result
     if not validate_wifi_credentials(wifi_name, password):
         show_custom_error(
+            window,
             "Invalid Credentials",
             "Please check your credentials.",
             x=300,
@@ -33,6 +32,7 @@ def on_connect_button_click(wifi_name, password):
     if success:
 
         show_custom_info(
+            window,
             "Connection Successful",
             f"Successfully connected to {wifi_name}!",
             x=300,
@@ -40,6 +40,7 @@ def on_connect_button_click(wifi_name, password):
         )
     else:
         show_custom_error(
+            window,
             "Connection Failed",
             f"Failed to connect to {wifi_name}. Please check your credentials.",
             x=300,
@@ -96,7 +97,7 @@ def WiFiConnectScreen(
     back_image = ImageTk.PhotoImage(back)
     back_button = tk.Label(
         window,
-        image=back_image,
+        image=back_image,  # type: ignore
         borderwidth=0,  # Remove the border
         highlightthickness=0,  # Remove the highlight border
         relief="flat",  # Set the button relief to "flat" to avoid any raised or sunken borders
@@ -104,7 +105,7 @@ def WiFiConnectScreen(
         padx=10,  # Add horizontal padding (space around the image)
         pady=10,  # Add vertical padding (space around the image)
     )
-    back_button.image = back_image
+    back_button.image = back_image  # type: ignore as we are doing this to keep reference to image
     back_button.bind(
         "<Button-1>",
         lambda _: ConfigureWiFiScreen.ConfigureWIFIScreen(window, application_state),
@@ -115,7 +116,7 @@ def WiFiConnectScreen(
     connect_image = ImageTk.PhotoImage(connect)
     connect_button = tk.Label(
         window,
-        image=connect_image,
+        image=connect_image,  # type: ignore
         borderwidth=0,
         highlightthickness=0,
         relief="flat",
@@ -125,9 +126,9 @@ def WiFiConnectScreen(
     )
     connect_button.bind(
         "<Button-1>",
-        lambda _: on_connect_button_click(wifi_name, password_var.get()),
+        lambda _: on_connect_button_click(window, wifi_name, password_var.get()),
     )
-    connect_button.image = connect_image
+    connect_button.image = connect_image  # type: ignore as we are doing this to keep reference to image
     connect_button.place(x=600, y=81)
 
     # Function for displaying name and logo

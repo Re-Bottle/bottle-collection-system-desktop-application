@@ -20,7 +20,7 @@ def Add_Wifi_Status(canvas: tk.Canvas, application_state: ApplicationState):
         font=("Kadwa Regular", 10),
     )
 
-    canvas.create_image(
+    canvas.create_image(  # type: ignore
         677,
         10,
         anchor=tk.NW,
@@ -31,5 +31,5 @@ def Add_Wifi_Status(canvas: tk.Canvas, application_state: ApplicationState):
         ),
     )
 
-    canvas.image2 = connected_image
-    canvas.image3 = not_connected_image
+    canvas.image2 = connected_image  # type: ignore as we are doing this to keep reference to image
+    canvas.image3 = not_connected_image  # type: ignore as we are doing this to keep reference to image

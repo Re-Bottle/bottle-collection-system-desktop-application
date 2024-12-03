@@ -1,8 +1,12 @@
 import threading
+from typing import Callable
+from xmlrpc.client import Boolean
 from utility import connect_wifi
 
 
-def connect_to_wifi(callback_function, SSID, password):
+def connect_to_wifi(
+    callback_function: Callable[[Boolean], None], SSID: str, password: str
+):
     """
     Connect to a Wi-Fi network based on the current operating system.
 
@@ -29,7 +33,7 @@ def connect_to_wifi(callback_function, SSID, password):
 
 
 # Example callback function to handle the result of the Wi-Fi connection attempt
-def connection_callback(success):
+def connection_callback(success: bool):
     if success:
         print("Successfully connected to Wi-Fi!")
     else:

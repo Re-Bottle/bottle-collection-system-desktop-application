@@ -14,17 +14,16 @@ from misc.utility import (
 )
 from screens import HomeScreen, SettingsScreen
 
-from main import WIFI_STATE
-
 
 def on_update_button_click(
-    new_pass, window: tk.Tk, application_state: ApplicationState
+    new_pass: str, window: tk.Tk, application_state: ApplicationState
 ):
     """
     Handler for when the login button is clicked. Updates the default password to the one given by user.
     """
     if not validate_login_pass(new_pass):
         show_custom_error(
+            window,
             "Invalid passcode",
             "Passcode must be a 6-digit number.",
             x=300,
@@ -37,6 +36,7 @@ def on_update_button_click(
 
     # Show success message
     show_custom_info(
+        window,
         "Passcode Updated",
         "Passcode updated successfully!",
         x=300,
@@ -92,7 +92,7 @@ def ChangePasswordScreen(window: tk.Tk, application_state: ApplicationState):
     back_image = ImageTk.PhotoImage(back)
     back_button = tk.Label(
         window,
-        image=back_image,
+        image=back_image,  # type: ignore
         borderwidth=0,  # Remove the border
         highlightthickness=0,  # Remove the highlight border
         relief="flat",  # Set the button relief to "flat" to avoid any raised or sunken borders
@@ -100,7 +100,7 @@ def ChangePasswordScreen(window: tk.Tk, application_state: ApplicationState):
         padx=10,  # Add horizontal padding (space around the image)
         pady=10,  # Add vertical padding (space around the image)
     )
-    back_button.image = back_image
+    back_button.image = back_image  # type: ignore as we are doing this to keep reference to image
     back_button.bind(
         "<Button-1>",
         lambda _: HomeScreen.HomeScreen(window, application_state),
@@ -111,7 +111,7 @@ def ChangePasswordScreen(window: tk.Tk, application_state: ApplicationState):
     update_image = ImageTk.PhotoImage(update)
     update_button = tk.Label(
         window,
-        image=update_image,
+        image=update_image,  # type: ignore
         borderwidth=0,
         highlightthickness=0,
         relief="flat",
@@ -123,7 +123,7 @@ def ChangePasswordScreen(window: tk.Tk, application_state: ApplicationState):
         "<Button-1>",
         lambda _: on_update_button_click(passcode_var.get(), window, application_state),
     )
-    update_button.image = update_image
+    update_button.image = update_image  # type: ignore as we are doing this to keep reference to image
     update_button.place(x=600, y=81)
 
     # Function for displaying name and logo

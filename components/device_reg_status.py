@@ -1,8 +1,10 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 
+from misc.utility import ApplicationState
 
-def Add_Device_Reg_Status(canvas: tk.Canvas, device_registration_status: str):
+
+def Add_Device_Reg_Status(canvas: tk.Canvas, applicationState: ApplicationState):
     registration_successful = Image.open(
         "./assets/registered.png"
     )  # Image when registration is successful
@@ -19,21 +21,21 @@ def Add_Device_Reg_Status(canvas: tk.Canvas, device_registration_status: str):
         580.0,
         15.0,
         anchor="nw",
-        text=device_registration_status,
+        text=applicationState.device_registration_state.value,
         fill="#515050",
         font=("Kadwa Regular", 10),
     )
 
-    canvas.create_image(
+    canvas.create_image(  # type: ignore
         550,
         10,
         anchor=tk.NW,
         image=(
             successful_image
-            if device_registration_status == "Registered"
+            if applicationState.device_registration_state.value == "Registered"
             else failed_image
         ),
     )
 
-    canvas.image_success = successful_image
-    canvas.image_failed = failed_image
+    canvas.image_success = successful_image  # type: ignore as we are doing this to keep reference to image
+    canvas.image_failed = failed_image  # type: ignore as we are doing this to keep reference to image

@@ -4,7 +4,7 @@ import subprocess
 import platform
 import time
 import hashlib
-from getpass import getpass
+from typing import List
 
 
 PASSWORD_FILE = "/etc/my_app_password"  # Ensure this file is secured properly
@@ -17,11 +17,18 @@ class WIFI_STATE(Enum):
     UNAVAILABLE = "Unavailable"
 
 
+class REGISTRATION_STATE(Enum):
+    REGISTERED = "Registered"
+    UNREGISTERED = "Unregistered"
+
+
 class ApplicationState:
     wifi_state: WIFI_STATE = WIFI_STATE.NOT_CONNECTED
+    device_registration_state: REGISTRATION_STATE = REGISTRATION_STATE.UNREGISTERED
 
     def __init__(self):
         self.update_wifi_state()
+        self.load_device_registration_state()
 
     def set_wifi_state(self, state: WIFI_STATE):
         self.wifi_state = state
@@ -38,11 +45,15 @@ class ApplicationState:
         else:
             self.set_wifi_state(WIFI_STATE.UNAVAILABLE)
 
+    def load_device_registration_state(self):
+        # TODO: Load Device Registration State
+        pass
+
 
 import re
 
 
-def validate_login_pass(login_pass):
+def validate_login_pass(login_pass: str) -> bool:
     """
     Validates the login password.
     Basic requirements are:
@@ -58,7 +69,7 @@ def validate_login_pass(login_pass):
     return True
 
 
-def validate_wifi_credentials(ssid, password):
+def validate_wifi_credentials(ssid: str, password: str) -> bool:
     """
     Validate the Wi-Fi credentials by checking if the SSID and password are not empty,
     if they meet basic length and character requirements, and if the password is complex enough.
@@ -87,7 +98,7 @@ def validate_wifi_credentials(ssid, password):
     return True
 
 
-def connect_wifi(ssid, password):
+def connect_wifi(ssid: str, password: str) -> bool | None:
     """
     Connect to a Wi-Fi network based on the current operating system.
 
@@ -104,7 +115,7 @@ def connect_wifi(ssid, password):
         return False
 
 
-def connect_wifi_windows(name, SSID, password):
+def connect_wifi_windows(name: str, SSID: str, password: str):
     # function to establish a new connection
     config = (
         """<?xml version=\"1.0\"?>
@@ -150,11 +161,11 @@ def connect_wifi_windows(name, SSID, password):
         os.system(disconnect_command)
         subprocess.run(connect_command, check=True, shell=True)
         return get_wifi_state(True)
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError as _:
         return False
 
 
-def connect_wifi_linux(ssid, password):
+def connect_wifi_linux(ssid: str, password: str):
     """
     Connect to a Wi-Fi network on Linux using nmcli (NetworkManager).
 
@@ -167,11 +178,11 @@ def connect_wifi_linux(ssid, password):
             ["nmcli", "dev", "wifi", "connect", ssid, "password", password], check=True
         )
         return True
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError as _:
         return False
 
 
-def list_available_wifi(should_refresh=True):
+def list_available_wifi(should_refresh: bool = True) -> List[str]:
     """
     List all available Wi-Fi networks based on the current operating system.
     Returns a list of dictionaries containing SSID (network name) and signal strength.
@@ -187,7 +198,7 @@ def list_available_wifi(should_refresh=True):
         return []
 
 
-def list_available_wifi_windows(should_refresh=True):
+def list_available_wifi_windows(should_refresh: bool = True) -> List[str]:
     """
     List all available Wi-Fi networks on Windows using the `netsh` command.
     Returns a list of SSIDs and signal strength.
@@ -208,7 +219,7 @@ def list_available_wifi_windows(should_refresh=True):
             ["netsh", "wlan", "show", "networks"], text=True
         )
 
-        networks = []
+        networks: List[str] = []
 
         for result_item in result.strip().splitlines():
             if "SSID" in result_item:
@@ -223,7 +234,7 @@ def list_available_wifi_windows(should_refresh=True):
         return []
 
 
-def list_available_wifi_linux(should_refresh=True):
+def list_available_wifi_linux(should_refresh: bool = True) -> List[str]:
     """
     List all available Wi-Fi networks on Linux using the `nmcli` command.
     Returns a list of SSIDs and signal strength.
@@ -235,10 +246,10 @@ def list_available_wifi_linux(should_refresh=True):
         )
 
         # Parse the result to extract SSIDs and signal strength
-        networks = []
+        networks: List[str] = []
         for line in result.splitlines():
-            ssid, signal = line.split(":")
-            networks.append({"SSID": ssid, "Signal Strength": signal})
+            ssid, _ = line.split(":")
+            networks.append(ssid)
 
         return networks
 
@@ -247,7 +258,7 @@ def list_available_wifi_linux(should_refresh=True):
         return []
 
 
-def get_wifi_state(should_delay=False):
+def get_wifi_state(should_delay: bool = False) -> bool:
     """
     Get the current Wi-Fi connection status based on the operating system.
     Returns True if connected, False if not connected, and None if the state could not be determined.
@@ -262,10 +273,10 @@ def get_wifi_state(should_delay=False):
         print(
             f"Operating system '{current_os}' not supported for Wi-Fi state checking."
         )
-        return None
+        return False
 
 
-def get_wifi_state_windows(should_delay=False):
+def get_wifi_state_windows(should_delay: bool = False):
     if should_delay:
         time.sleep(5)
     try:
@@ -330,7 +341,7 @@ def restart_windows():
 def save_passcode_to_registry(passcode: str, name: str = "Passcode"):
     """
     Save hashed passcode in the Windows registry
-    Create a registry key under HKEY_CURRENT_USER\Software\MyApp
+    Create a registry key under HKEY_CURRENT_USER\\Software\\MyApp
     Set the hashed passcode under the "Passcode" name
     """
     import winreg
@@ -338,7 +349,7 @@ def save_passcode_to_registry(passcode: str, name: str = "Passcode"):
     try:
         hashed_passcode = hash_password(passcode)
 
-        key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\MyApp")
+        key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\\MyApp")
         winreg.SetValueEx(key, name, 0, winreg.REG_SZ, hashed_passcode)
         winreg.CloseKey(key)
         print("Hashed passcode saved successfully in the registry.")
@@ -357,7 +368,7 @@ def load_passcode_from_registry(name: str = "Passcode"):
     import winreg
 
     try:
-        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\MyApp")
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\\MyApp")
         passcode, _ = winreg.QueryValueEx(key, name)
         winreg.CloseKey(key)
         return passcode
@@ -375,21 +386,16 @@ def verify_passcode(user_input: str):
 
         if stored_passcode is None:
             save_passcode("123456")
+        return hash_password(user_input) == stored_passcode
 
-        hashed_input = hash_password(user_input)
-
-        if hashed_input == stored_passcode:
-            return True
-        else:
-            return False
     else:
         initialize_password()
         with open(PASSWORD_FILE, "r") as f:
             stored_password_hash = f.read().strip()
-        return stored_password_hash == hash_password(input_password)
+        return stored_password_hash == hash_password(user_input)
 
 
-def hash_password(password):
+def hash_password(password: str):
     """Hash the password using SHA-256."""
     return hashlib.sha256(password.encode()).hexdigest()
 
@@ -402,14 +408,7 @@ def initialize_password():
         os.chmod(PASSWORD_FILE, 0o600)  # Secure the password file
 
 
-# def verify_password(input_password):
-#     """Verify the entered password against the stored hash."""
-#     with open(PASSWORD_FILE, "r") as f:
-#         stored_password_hash = f.read().strip()
-#     return stored_password_hash == hash_password(input_password)
-
-
-def update_password(new_password):
+def update_password(new_password: str):
     """Update the stored password."""
     with open(PASSWORD_FILE, "w") as f:
         f.write(hash_password(new_password))
@@ -417,8 +416,6 @@ def update_password(new_password):
 
 def save_passcode(passcode: str):
     if platform.system().lower() == "windows":
-        import winreg
-
         save_passcode_to_registry(passcode)
     else:
         # save_passcode_to_file(passcode)

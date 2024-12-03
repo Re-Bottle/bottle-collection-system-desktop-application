@@ -1,13 +1,13 @@
 import tkinter as tk
 
 from interface.io_check import turn_on_led_test
-from screens import BottleDetectedLoadingScreen, HomeScreen
-from misc.utility import WIFI_STATE, ApplicationState
+from screens import HomeScreen
+from misc.utility import ApplicationState
 from interface.io_check import turn_on_led_test
 import platform
 
 
-def on_escape(event=None):
+def on_escape(_):
     window.quit()
 
 
@@ -18,8 +18,8 @@ if __name__ == "__main__":
     window.geometry("800x480")
     window.configure(bg="#FFFFFF")
     window.title("Bottle Collection System")
-    window.bind("<Escape>", on_escape)
-    window.bind("<Button-2>", on_escape)
+    window.bind("<Escape>", on_escape)  # type: ignore
+    window.bind("<Button-2>", on_escape)  # type: ignore
 
     application_state = ApplicationState()
     HomeScreenCanvas = HomeScreen.HomeScreen(window, application_state)

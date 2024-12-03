@@ -56,13 +56,13 @@ def HomeScreen(window: tk.Tk, application_state: ApplicationState):
         fill="#515050",
         font=("Kadwa Regular", 15),
     )
-    canvas.create_image(117, 203, anchor=tk.NW, image=recycle_image)
-    canvas.recycle_image = recycle_image
+    canvas.create_image(117, 203, anchor=tk.NW, image=recycle_image)  # type: ignore
+    canvas.recycle_image = recycle_image  # type: ignore as we are doing this to keep reference to image
 
     # Settings button
     settings_button = tk.Label(
         window,
-        image=settings_image,
+        image=settings_image,  # type: ignore
         borderwidth=0,  # Remove the border
         highlightthickness=0,  # Remove the highlight border
         relief="flat",  # Set the button relief to "flat" to avoid any raised or sunken borders
@@ -71,7 +71,7 @@ def HomeScreen(window: tk.Tk, application_state: ApplicationState):
         pady=10,  # Add vertical padding (space around the image)
     )
 
-    settings_button.image = settings_image
+    settings_button.image = settings_image  # type: ignore as we are doing this to keep reference to image
     settings_button.bind(
         "<Button-1>",
         # lambda _: SettingsScreen.SettingsScreen(window, application_state),
@@ -88,6 +88,6 @@ def HomeScreen(window: tk.Tk, application_state: ApplicationState):
     # Function for displaying Wi-Fi status
     Add_Wifi_Status(canvas, application_state)
 
-    Add_Device_Reg_Status(canvas, "Unregistered")
+    Add_Device_Reg_Status(canvas, application_state)
 
     return canvas
