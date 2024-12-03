@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import Canvas, ttk
+from tkinter import Canvas
 from PIL import Image, ImageTk
 
 # import boto3
@@ -10,8 +10,7 @@ from components.name_logo import Add_Name_Logo
 from components.wifi_status import Add_Wifi_Status
 from screens import SettingsScreen
 
-from misc.utility import ApplicationState, list_available_wifi
-from main import WIFI_STATE
+from misc.utility import ApplicationState
 
 uniqueID = "1234567890"
 is_disabled = False
@@ -44,7 +43,7 @@ is_disabled = False
 
 
 # This function handles to the reload and check if device is registered when the refresh button is clicked
-def refresh_button_handler(canvas, window):
+def refresh_button_handler(canvas: tk.Canvas, window: tk.Tk):
 
     return
 
@@ -86,7 +85,7 @@ def RegisterDeviceScreen(window: tk.Tk, application_state: ApplicationState):
     back_image = ImageTk.PhotoImage(back)
     back_button = tk.Label(
         window,
-        image=back_image,
+        image=back_image,  # type: ignore
         borderwidth=0,
         highlightthickness=0,
         relief="flat",
@@ -102,14 +101,14 @@ def RegisterDeviceScreen(window: tk.Tk, application_state: ApplicationState):
             else None
         ),
     )
-    back_button.image = back_image
+    back_button.image = back_image  # type: ignore as we are doing this to keep reference to image
     back_button.place(x=66, y=81)
 
     # Refresh Button
     refresh_image = ImageTk.PhotoImage(refresh)
     refresh_button = tk.Label(
         window,
-        image=refresh_image,
+        image=refresh_image,  # type: ignore
         borderwidth=0,
         highlightthickness=0,
         relief="flat",
@@ -121,7 +120,7 @@ def RegisterDeviceScreen(window: tk.Tk, application_state: ApplicationState):
         "<Button-1>",
         lambda _: refresh_button_handler(canvas, window),
     )
-    refresh_button.image = refresh_image
+    refresh_button.image = refresh_image  # type: ignore as we are doing this to keep reference to image
     refresh_button.place(x=700, y=81)
 
     # Function for displaying name and logo
