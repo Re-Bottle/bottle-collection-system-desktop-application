@@ -4,11 +4,12 @@ import subprocess
 import platform
 import time
 import hashlib
+import keyring
 from typing import List
 
 
-PASSWORD_FILE = "/etc/my_app_password"  # Ensure this file is secured properly
 DEFAULT_PASSWORD = "123456"
+stored_hashed_password = ""
 
 
 class WIFI_STATE(Enum):
@@ -379,20 +380,30 @@ def load_passcode_from_registry(name: str = "Passcode"):
         return None
 
 
+def load_passcode_from_keyring(name: str = "Passcode") -> str:
+    """Load passcode from the keyring."""
+    stored_password = keyring.get_password(name, "user")
+    if stored_password:
+        return stored_password
+    else:
+        return ""
+
+
 def verify_passcode(user_input: str):
     """Verify if the user input matches the stored hashed passcode"""
     if platform.system().lower() == "windows":
         stored_passcode = load_passcode_from_registry()
 
         if stored_passcode is None:
-            save_passcode("123456")
+            save_passcode(DEFAULT_PASSWORD)
         return hash_password(user_input) == stored_passcode
 
     else:
-        initialize_password()
-        with open(PASSWORD_FILE, "r") as f:
-            stored_password_hash = f.read().strip()
-        return stored_password_hash == hash_password(user_input)
+        stored_hashed_password = load_passcode_from_keyring("Passcode")
+
+        if stored_hashed_password == "":
+            initialize_password_linux()
+        return hash_password(user_input) == stored_hashed_password
 
 
 def hash_password(password: str):
@@ -400,26 +411,31 @@ def hash_password(password: str):
     return hashlib.sha256(password.encode()).hexdigest()
 
 
-def initialize_password():
+def initialize_password_linux():
     """Initialize password if it doesn't exist."""
-    if not os.path.exists(PASSWORD_FILE):
-        with open(PASSWORD_FILE, "w") as f:
-            f.write(hash_password(DEFAULT_PASSWORD))
-        os.chmod(PASSWORD_FILE, 0o600)  # Secure the password file
+    stored_password = load_passcode_from_keyring("Passcode")
+    if stored_password == "":
+        # Password not found, so set it to the default password
+        hashed_password = hash_password(DEFAULT_PASSWORD)
+        keyring.set_password("Passcode", "user", hashed_password)
+        print("Password initialized with default value.")
 
 
-def update_password(new_password: str):
+def update_password_linux(new_password: str):
     """Update the stored password."""
-    with open(PASSWORD_FILE, "w") as f:
-        f.write(hash_password(new_password))
+    stored_password = load_passcode_from_keyring("Passcode")
+    if stored_password == "":
+        initialize_password_linux()
+    hashed_password = hash_password(new_password)
+    keyring.set_password("Passcode", "user", hashed_password)
+    print("Password updated successfully.")
 
 
 def save_passcode(passcode: str):
     if platform.system().lower() == "windows":
         save_passcode_to_registry(passcode)
     else:
-        # save_passcode_to_file(passcode)
-        update_password(passcode)
+        update_password_linux(passcode)
 
 
 # Example usage:
