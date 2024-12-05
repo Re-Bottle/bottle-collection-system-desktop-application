@@ -14,10 +14,11 @@ def on_escape(_):
 if __name__ == "__main__":
     # Main Window
     window = tk.Tk()
-    window.overrideredirect(True)
+    window.title("Bottle Collection System")
+    window.resizable(False, False)
+    window.protocol("WM_DELETE_WINDOW", lambda: None)  # Disable close button
     window.geometry("800x480")
     window.configure(bg="#FFFFFF")
-    window.title("Bottle Collection System")
     window.bind("<Escape>", on_escape)  # type: ignore
     window.bind("<Button-2>", on_escape)  # type: ignore
 

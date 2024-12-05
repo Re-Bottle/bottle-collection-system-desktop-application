@@ -29,7 +29,13 @@ def show_custom_error(
     root.wait_window(top)
 
 
-def show_custom_info(root: tk.Tk, title: str, message: str, x: int = 300, y: int = 300):
+def show_custom_info(
+    root: tk.Tk,
+    title: str,
+    message: str,
+    x: int = 300,
+    y: int = 300,
+):
     """Custom info messagebox at a specific position."""
     top = tk.Toplevel(root)
     top.title(title)
@@ -49,7 +55,9 @@ def show_custom_info(root: tk.Tk, title: str, message: str, x: int = 300, y: int
     button.pack(pady=(5, 10))
 
     # Delay grab_set to ensure the window is fully initialized
-    top.after(100, lambda: top.grab_set())  # Delay grab_set by 100ms
+    top.after(
+        100, lambda: (top.grab_set(), top.lift(), top.focus_force())
+    )  # Delay grab_set by 100ms
 
     top.transient(root)  # Set as a dialog
     root.wait_window(top)
