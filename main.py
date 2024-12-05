@@ -1,15 +1,21 @@
 import tkinter as tk
 
-from interface.io_check import turn_on_led_test
+from interface.io import turn_on_led_test  # type: ignore
+from interface.camera_interface import capture_image  # type: ignore
 from interface.server_communicate import ping
 from screens import HomeScreen
 from misc.utility import ApplicationState
-from interface.io_check import turn_on_led_test
 import platform
 
 
 def on_escape(_):
     window.quit()
+
+
+def setup():
+    ping()  # to check connection to server
+
+    pass
 
 
 if __name__ == "__main__":
@@ -31,6 +37,8 @@ if __name__ == "__main__":
 
     # Test Code for IO
     if platform.system() == "Linux":
-        turn_on_led_test()
+        # turn_on_led_test()
+        # capture_image()
+        pass
 
     window.mainloop()

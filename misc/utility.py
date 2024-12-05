@@ -6,7 +6,8 @@ import time
 import hashlib
 import keyring
 from typing import List
-
+import re
+import uuid
 
 DEFAULT_PASSWORD = "123456"
 SERVICE_NAME = "Passcode"
@@ -49,10 +50,12 @@ class ApplicationState:
 
     def load_device_registration_state(self):
         # TODO: Load Device Registration State
+
         pass
 
 
-import re
+def generate_UUID() -> str:
+    return str(uuid.uuid4())
 
 
 def validate_login_pass(login_pass: str) -> bool:
@@ -382,13 +385,8 @@ def load_passcode_from_registry(name: str = SERVICE_NAME):
 
 
 def load_passcode_from_keyring():
-    """Load passcode from the keyring."""
-    stored_password = keyring.get_password(SERVICE_NAME, USER_NAME)
-    print(f"Password is: {stored_password} and its type is {type}")
-    if stored_password:
-        return stored_password
-    else:
-        return None
+    """Load value from the keyring."""
+    return keyring.get_password(SERVICE_NAME, USER_NAME)
 
 
 # Called by Login screen if the user wants to access settings
