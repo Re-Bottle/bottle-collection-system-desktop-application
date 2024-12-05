@@ -9,7 +9,8 @@ from typing import List
 
 
 DEFAULT_PASSWORD = "123456"
-stored_hashed_password = ""
+SERVICE_NAME = "Passcode"
+USER_NAME = "Re-Bottle"
 
 
 class WIFI_STATE(Enum):
@@ -339,7 +340,7 @@ def restart_windows():
     subprocess.run(["shutdown", "/r", "/t", "0"])  # /r = restart, /t 0 = no delay
 
 
-def save_passcode_to_registry(passcode: str, name: str = "Passcode"):
+def save_passcode_to_registry(passcode: str, name: str = SERVICE_NAME):
     """
     Save hashed passcode in the Windows registry
     Create a registry key under HKEY_CURRENT_USER\\Software\\MyApp
@@ -358,7 +359,7 @@ def save_passcode_to_registry(passcode: str, name: str = "Passcode"):
         print(f"Failed to save passcode to registry: {e}")
 
 
-def load_passcode_from_registry(name: str = "Passcode"):
+def load_passcode_from_registry(name: str = SERVICE_NAME):
     """
     Load passcode from the Windows registry
     Open the registry key where the passcode is stored
@@ -380,17 +381,18 @@ def load_passcode_from_registry(name: str = "Passcode"):
         return None
 
 
-def load_passcode_from_keyring(name: str = "Passcode") -> str:
+def load_passcode_from_keyring(name: str = SERVICE_NAME):
     """Load passcode from the keyring."""
-    stored_password = keyring.get_password(name, "user")
+    stored_password = keyring.get_password(name, USER_NAME)
     if stored_password:
         return stored_password
     else:
-        return ""
+        return None
 
 
+# Called by Login screen if the user wants to access settings
 def verify_passcode(user_input: str):
-    """Verify if the user input matches the stored hashed passcode"""
+    """Verify if the user input hash matches the stored hashed passcode"""
     if platform.system().lower() == "windows":
         stored_passcode = load_passcode_from_registry()
 
@@ -399,10 +401,13 @@ def verify_passcode(user_input: str):
         return hash_password(user_input) == stored_passcode
 
     else:
-        stored_hashed_password = load_passcode_from_keyring("Passcode")
+        stored_hashed_password = load_passcode_from_keyring(
+            SERVICE_NAME
+        )  # None if password no Set or default password used
 
-        if stored_hashed_password == "":
-            initialize_password_linux()
+        if stored_hashed_password is None:
+            stored_hashed_password = initialize_password_linux()
+
         return hash_password(user_input) == stored_hashed_password
 
 
@@ -413,21 +418,19 @@ def hash_password(password: str):
 
 def initialize_password_linux():
     """Initialize password if it doesn't exist."""
-    stored_password = load_passcode_from_keyring("Passcode")
-    if stored_password == "":
-        # Password not found, so set it to the default password
-        hashed_password = hash_password(DEFAULT_PASSWORD)
-        keyring.set_password("Passcode", "user", hashed_password)
-        print("Password initialized with default value.")
+    hashed_password = hash_password(DEFAULT_PASSWORD)
+    keyring.set_password(SERVICE_NAME, USER_NAME, hashed_password)
+    print("Password initialized with default value.")
+    return hash_password
 
 
 def update_password_linux(new_password: str):
     """Update the stored password."""
-    stored_password = load_passcode_from_keyring("Passcode")
-    if stored_password == "":
+    stored_password = load_passcode_from_keyring(SERVICE_NAME)
+    if stored_password is None:
         initialize_password_linux()
     hashed_password = hash_password(new_password)
-    keyring.set_password("Passcode", "user", hashed_password)
+    keyring.set_password(SERVICE_NAME, USER_NAME, hashed_password)
     print("Password updated successfully.")
 
 

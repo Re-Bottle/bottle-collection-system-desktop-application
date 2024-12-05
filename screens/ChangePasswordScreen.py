@@ -3,6 +3,7 @@ from tkinter import Canvas
 from PIL import Image, ImageTk
 
 from components.date_time import Add_date_time
+from components.keyboard import Add_Keyboard
 from components.name_logo import Add_Name_Logo
 from components.wifi_status import Add_Wifi_Status
 from components.message_box import show_custom_error, show_custom_info
@@ -134,5 +135,8 @@ def ChangePasswordScreen(window: tk.Tk, application_state: ApplicationState):
 
     # Function for displaying Wi-Fi status
     Add_Wifi_Status(canvas, application_state)
+
+    # Function for displaying keyboard
+    Add_Keyboard(window, passcode_var, 6)
 
     return canvas
