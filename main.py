@@ -1,6 +1,7 @@
 import tkinter as tk
 
 from interface.io_check import turn_on_led_test
+from interface.server_communicate import ping
 from screens import HomeScreen
 from misc.utility import ApplicationState
 from interface.io_check import turn_on_led_test
@@ -12,6 +13,9 @@ def on_escape(_):
 
 
 if __name__ == "__main__":
+
+    ping()
+
     # Main Window
     window = tk.Tk()
     window.title("Bottle Collection System")
