@@ -381,9 +381,10 @@ def load_passcode_from_registry(name: str = SERVICE_NAME):
         return None
 
 
-def load_passcode_from_keyring(name: str = SERVICE_NAME):
+def load_passcode_from_keyring():
     """Load passcode from the keyring."""
-    stored_password = keyring.get_password(name, USER_NAME)
+    stored_password = keyring.get_password(SERVICE_NAME, USER_NAME)
+    print(f"Password is: {stored_password} and its type is {type}")
     if stored_password:
         return stored_password
     else:
@@ -401,12 +402,13 @@ def verify_passcode(user_input: str):
         return hash_password(user_input) == stored_passcode
 
     else:
-        stored_hashed_password = load_passcode_from_keyring(
-            SERVICE_NAME
+        stored_hashed_password = (
+            load_passcode_from_keyring()
         )  # None if password no Set or default password used
 
         if stored_hashed_password is None:
             stored_hashed_password = initialize_password_linux()
+            print(f"stored hash was None and new Hash is {stored_hashed_password}")
 
         return hash_password(user_input) == stored_hashed_password
 
@@ -421,12 +423,12 @@ def initialize_password_linux():
     hashed_password = hash_password(DEFAULT_PASSWORD)
     keyring.set_password(SERVICE_NAME, USER_NAME, hashed_password)
     print("Password initialized with default value.")
-    return hash_password
+    return hashed_password
 
 
 def update_password_linux(new_password: str):
     """Update the stored password."""
-    stored_password = load_passcode_from_keyring(SERVICE_NAME)
+    stored_password = load_passcode_from_keyring()
     if stored_password is None:
         initialize_password_linux()
     hashed_password = hash_password(new_password)
