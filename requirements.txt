@@ -1,4 +1,4 @@
-winwifi #https://github.com/mrjohannchang/winwifi?tab=readme-ov-file
+picamera2
 pillow
 qrcode[pil]
 keyring
