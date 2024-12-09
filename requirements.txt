@@ -4,3 +4,4 @@ qrcode[pil]
 keyring
 python3-gpiozero
 requests
+hx711-multi
