@@ -22,7 +22,7 @@ def turn_on_led_test():
 
 
 def read_load_cell_data():
-    import RPi.GPIO as GPIO
+    import RPi.GPIO as GPIO  # type: ignore
     from hx711 import HX711  # type: ignore
 
     # Setup HX711
@@ -49,35 +49,22 @@ def read_load_cell_data():
 
 
 def control_servo():
-    import pigpio  # type: ignore
-    import time
+    from gpiozero import Servo  # type: ignore
+    from time import sleep
+    from gpiozero.pins.rpigpio import RPiGPIOFactory  # type: ignore
+    import RPi.GPIO as GPIO  # type: ignore
 
-    # Initialize pigpio
-    pi = pigpio.pi()  # type: ignore
+    # Set up GPIO pin for the servo
+    GPIO.setmode(GPIO.BCM)
+    factory = RPiGPIOFactory()  # type: ignore
+    servo = Servo(SERVO, pin_factory=factory)  # type: ignore
 
-    if not pi.connected:  # type: ignore
-        print("Failed to connect to pigpio daemon.")
-        exit()
-
-    # Set the servo pulse range (500 to 2500 microseconds for MG995)
-    pi.set_servo_pulsewidth(SERVO, 0)  # type: ignore Initialize to 0 (servo off)
-
-    try:
-        while True:
-            # Move to 0 degrees (1 ms pulse)
-            pi.set_servo_pulsewidth(SERVO, 1000)  # type: ignore
-            time.sleep(2)
-
-            # Move to 90 degrees (1.5 ms pulse)
-            pi.set_servo_pulsewidth(SERVO, 1500)  # type: ignore
-            time.sleep(2)
-
-            # Move to 180 degrees (2 ms pulse)
-            pi.set_servo_pulsewidth(SERVO, 2000)  # type: ignore
-            time.sleep(2)
-    except KeyboardInterrupt:
-        print("Exiting...")
-    finally:
-        # Turn off the servo
-        pi.set_servo_pulsewidth(SERVO, 0)  # type: ignore
-        pi.stop()  # type: ignore
+    # Sweep the servo back and forth
+    while True:
+        for position in range(
+            -100, 101, 10
+        ):  # Move from -100 (full left) to 100 (full right)
+            servo.value = (
+                position / 100.0
+            )  # Map -100 to 100 range to -1 to 1 for servo control
+            sleep(0.5)
