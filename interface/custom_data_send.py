@@ -2,6 +2,7 @@ from awscrt import mqtt
 from aws import mqtt_connection_builder
 import json
 from datetime import datetime
+import os
 
 
 # Callback when connection is accidentally lost.
@@ -40,11 +41,13 @@ def on_connection_closed(connection, callback_data):
 
 
 INPUT_ENDPOINT = "akpp5wezqfiun-ats.iot.ap-south-1.amazonaws.com"
-CA_FILE = "root-CA.crt"
-CERT = "Raspberry_PI.cert.pem"
-KEY = "Raspberry_PI.private.key"
+CA_FILE = "\\certificates\\root-CA.crt"
+CERT = "\\certificates\\Raspberry_PI.cert.pem"
+KEY = "\\certificates\\Raspberry_PI.private.key"
 TOPIC = "bottle"
 PORT = 8883
+
+current_directory = os.getcwd()
 
 
 def notify_bottle_detected(device_id="Pearl"):
@@ -52,9 +55,9 @@ def notify_bottle_detected(device_id="Pearl"):
     mqtt_connection = mqtt_connection_builder.mtls_from_path(
         endpoint=INPUT_ENDPOINT,
         port=PORT,
-        cert_filepath=CERT,
-        pri_key_filepath=KEY,
-        ca_filepath=CA_FILE,
+        cert_filepath=current_directory + CERT,
+        pri_key_filepath=current_directory + KEY,
+        ca_filepath=current_directory + CA_FILE,
         on_connection_interrupted=on_connection_interrupted,
         on_connection_resumed=on_connection_resumed,
         client_id=device_id,
