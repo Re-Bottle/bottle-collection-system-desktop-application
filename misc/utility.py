@@ -9,8 +9,10 @@ from typing import List
 import re
 import uuid
 
+
 DEFAULT_PASSWORD = "123456"
-SERVICE_NAME = "Passcode"
+PASSCODE_SERVICE_NAME = "Passcode"
+DEVICE_SERVICE_NAME = "device"
 USER_NAME = "Re-Bottle"
 
 
@@ -28,6 +30,9 @@ class REGISTRATION_STATE(Enum):
 class ApplicationState:
     wifi_state: WIFI_STATE = WIFI_STATE.NOT_CONNECTED
     device_registration_state: REGISTRATION_STATE = REGISTRATION_STATE.UNREGISTERED
+    owner_id: str = ""
+    device_id: str = ""
+    claimed_at: str = ""
 
     def __init__(self):
         self.update_wifi_state()
@@ -343,7 +348,7 @@ def restart_windows():
     subprocess.run(["shutdown", "/r", "/t", "0"])  # /r = restart, /t 0 = no delay
 
 
-def save_passcode_to_registry(passcode: str, name: str = SERVICE_NAME):
+def save_passcode_to_registry(passcode: str, name: str = PASSCODE_SERVICE_NAME):
     """
     Save hashed passcode in the Windows registry
     Create a registry key under HKEY_CURRENT_USER\\Software\\MyApp
@@ -362,7 +367,7 @@ def save_passcode_to_registry(passcode: str, name: str = SERVICE_NAME):
         print(f"Failed to save passcode to registry: {e}")
 
 
-def load_passcode_from_registry(name: str = SERVICE_NAME):
+def load_passcode_from_registry(name: str = PASSCODE_SERVICE_NAME):
     """
     Load passcode from the Windows registry
     Open the registry key where the passcode is stored
@@ -384,7 +389,7 @@ def load_passcode_from_registry(name: str = SERVICE_NAME):
         return None
 
 
-def load_passcode_from_keyring():
+def load_data_from_keyring(SERVICE_NAME: str = PASSCODE_SERVICE_NAME):
     """Load value from the keyring."""
     return keyring.get_password(SERVICE_NAME, USER_NAME)
 
@@ -401,7 +406,7 @@ def verify_passcode(user_input: str):
 
     else:
         stored_hashed_password = (
-            load_passcode_from_keyring()
+            load_data_from_keyring()
         )  # None if password no Set or default password used
 
         if stored_hashed_password is None:
@@ -419,18 +424,34 @@ def hash_password(password: str):
 def initialize_password_linux():
     """Initialize password if it doesn't exist."""
     hashed_password = hash_password(DEFAULT_PASSWORD)
-    keyring.set_password(SERVICE_NAME, USER_NAME, hashed_password)
+    keyring.set_password(PASSCODE_SERVICE_NAME, USER_NAME, hashed_password)
     print("Password initialized with default value.")
     return hashed_password
 
 
+def initialize_device() -> str:
+    """Initialize password if it doesn't exist."""
+    device_id = str(uuid.uuid4())
+    keyring.set_password(DEVICE_SERVICE_NAME, USER_NAME, device_id)
+    print(f"Device Initialized with id {device_id}")
+    return device_id
+
+
+def get_device_id():
+    """Get the device id from the keyring."""
+    device_id = keyring.get_password(DEVICE_SERVICE_NAME, USER_NAME)
+    if device_id is None:
+        device_id = initialize_device()
+    return device_id
+
+
 def update_password_linux(new_password: str):
     """Update the stored password."""
-    stored_password = load_passcode_from_keyring()
+    stored_password = load_data_from_keyring()
     if stored_password is None:
         initialize_password_linux()
     hashed_password = hash_password(new_password)
-    keyring.set_password(SERVICE_NAME, USER_NAME, hashed_password)
+    keyring.set_password(PASSCODE_SERVICE_NAME, USER_NAME, hashed_password)
     print("Password updated successfully.")
 
 

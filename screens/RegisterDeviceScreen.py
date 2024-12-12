@@ -12,40 +12,16 @@ from screens import SettingsScreen
 
 from misc.utility import ApplicationState
 
-uniqueID = "1234567890"
-is_disabled = False
-# # Initialize IoT client
-# client = boto3.client(
-#     "iot",
-#     aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-#     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-#     region_name="ap-south-1",
-# )
-
-
-# def create_provisioning_claim():
-#     # Create keys and certificate (this is often part of the provisioning claim)
-#     response = client.create_keys_and_certificate(setAsActive=True)
-#     # response = client.create_provisioning_claim(templateName="default", certificateId=response["certificateId"])
-
-#     print("Provisioning Claim Created:")
-#     print("Certificate ARN:", response["certificateArn"])
-#     print("Certificate PEM:", response["certificatePem"])
-#     print("Certificate ID:", response["certificateId"])
-#     print("Key Pair:")
-#     print("Private Key:", response["keyPair"]["PrivateKey"])
-#     print("Public Key:", response["keyPair"]["PublicKey"])
-
-#     return response
-
-
-# create_provisioning_claim()
-
 
 # This function handles to the reload and check if device is registered when the refresh button is clicked
 def refresh_button_handler(canvas: tk.Canvas, window: tk.Tk):
 
     return
+
+
+def get_device_id():
+    # TODO: implement this function
+    return "getting device id.... please wait"
 
 
 def RegisterDeviceScreen(window: tk.Tk, application_state: ApplicationState):
@@ -76,7 +52,7 @@ def RegisterDeviceScreen(window: tk.Tk, application_state: ApplicationState):
         300.0,
         290.0,
         anchor="nw",
-        text=uniqueID,
+        text=get_device_id(),
         fill="#93B15A",
         font=("Kadwa Regular", 20),
     )
@@ -95,11 +71,7 @@ def RegisterDeviceScreen(window: tk.Tk, application_state: ApplicationState):
     )
     back_button.bind(
         "<Button-1>",
-        lambda _: (
-            SettingsScreen.SettingsScreen(window, application_state)
-            if not is_disabled
-            else None
-        ),
+        lambda _: (SettingsScreen.SettingsScreen(window, application_state)),
     )
     back_button.image = back_image  # type: ignore as we are doing this to keep reference to image
     back_button.place(x=66, y=81)
