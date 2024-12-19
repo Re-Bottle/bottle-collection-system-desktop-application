@@ -26,8 +26,4 @@
 ```sudo apt install -y python3-picamera2```  
 ```sudo apt install -y lgpio```
 
-#### install pigpio
-```sudo spt install -y pigpio python3-pigpio``` Install pigpio
-```sudo pigpiod``` Start the pigpio daemon
-or
-```sudo systemctl enable pigpiod``` Start the pigpio daemon everytime on boot
+#### pigpio is not supported
