@@ -1,10 +1,11 @@
 import tkinter as tk
+
 from interface.io import control_servo, turn_on_led_test  # type: ignore
 from interface.camera_interface import capture_image  # type: ignore
 from interface.server_communicate import get_registration_status
-from interface.custom_data_send import notify_bottle_detected
+# from interface.custom_data_send import notify_bottle_detected
 from screens import HomeScreen
-from misc.utility import ApplicationState, get_device_id
+from misc.utility import OWNER_ID_NAME, REGISTRATION_STATE, ApplicationState, get_device_id, get_device_details, load_data_from_keyring
 import platform
 
 application_state = ApplicationState()
@@ -16,12 +17,18 @@ def on_escape(_):
 
 def setup():
     application_state.device_id = get_device_id()
-    response = get_registration_status(application_state.device_id)
-    application_state.device_registration_state = response.isRegistered
-    application_state.owner_id = response.owner_id
-    application_state.claimed_at = response.claimed_at
-
-    # notify_bottle_detected(application_state.device_id)
+    application_state.device_registration_state = get_device_details()
+    if application_state.device_registration_state == REGISTRATION_STATE.UNREGISTERED:
+        response = get_registration_status(application_state.device_id)
+        # application_state.device_registration_state = response.isRegistered
+        application_state.owner_id = response.owner_id
+        # notify_bottle_detected(application_state.device_id)
+    else:
+        # load owner id  from the keyring
+        op = load_data_from_keyring(OWNER_ID_NAME)
+        if op is not None:
+            application_state.owner_id = op
+        pass
 
     # Test Code for IO
     if platform.system() == "Linux":

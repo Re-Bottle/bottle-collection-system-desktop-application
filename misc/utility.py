@@ -13,6 +13,8 @@ import uuid
 DEFAULT_PASSWORD = "123456"
 PASSCODE_SERVICE_NAME = "Passcode"
 DEVICE_SERVICE_NAME = "device"
+REGISTRATION_SERVICE_NAME = "registration"
+OWNER_ID_NAME = "ownerId"
 USER_NAME = "Re-Bottle"
 
 
@@ -431,6 +433,7 @@ def initialize_password_linux():
 
 def initialize_device() -> str:
     """Initialize password if it doesn't exist."""
+    print("Initializing device...")
     device_id = str(uuid.uuid4())
     keyring.set_password(DEVICE_SERVICE_NAME, USER_NAME, device_id)
     print(f"Device Initialized with id {device_id}")
@@ -439,10 +442,17 @@ def initialize_device() -> str:
 
 def get_device_id():
     """Get the device id from the keyring."""
-    device_id = keyring.get_password(DEVICE_SERVICE_NAME, USER_NAME)
-    if device_id is None:
+    device_id = load_data_from_keyring(DEVICE_SERVICE_NAME)
+    if device_id == "" or device_id is None:
         device_id = initialize_device()
     return device_id
+
+def get_device_details() -> REGISTRATION_STATE:
+    '''Get the device registration state from the keyring'''
+    registration_state = load_data_from_keyring(REGISTRATION_SERVICE_NAME)
+    if registration_state is None:
+        keyring.set_password(REGISTRATION_SERVICE_NAME, USER_NAME, REGISTRATION_STATE.UNREGISTERED.value)
+    return REGISTRATION_STATE(registration_state)
 
 
 def update_password_linux(new_password: str):

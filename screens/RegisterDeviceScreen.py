@@ -8,21 +8,16 @@ from PIL import Image, ImageTk
 from components.date_time import Add_date_time
 from components.name_logo import Add_Name_Logo
 from components.wifi_status import Add_Wifi_Status
+from interface.server_communicate import get_registration_status
 from screens import SettingsScreen
 
-from misc.utility import ApplicationState
+from misc.utility import OWNER_ID_NAME, ApplicationState, get_device_id, load_data_from_keyring
 
 
 # This function handles to the reload and check if device is registered when the refresh button is clicked
 def refresh_button_handler(canvas: tk.Canvas, window: tk.Tk):
-
+    get_registration_status(get_device_id())
     return
-
-
-def get_device_id():
-    # TODO: implement this function
-    return "getting device id.... please wait"
-
 
 def RegisterDeviceScreen(window: tk.Tk, application_state: ApplicationState):
     refresh = Image.open("./assets/reload.png")
@@ -49,11 +44,20 @@ def RegisterDeviceScreen(window: tk.Tk, application_state: ApplicationState):
     )
 
     canvas.create_text(
-        300.0,
+        210.0,
         290.0,
         anchor="nw",
         text=get_device_id(),
         fill="#93B15A",
+        font=("Kadwa Regular", 20),
+    )
+
+    canvas.create_text(
+        210.0,
+        340.0,
+        anchor="nw",
+        text=("Enter the device id into claim device page, \nclaim it and click on the refresh button to check \nif the device is registered" if load_data_from_keyring(OWNER_ID_NAME) is "" else "Device is already registered"),
+        fill="#515050",
         font=("Kadwa Regular", 20),
     )
 
