@@ -56,7 +56,7 @@ def RegisterDeviceScreen(window: tk.Tk, application_state: ApplicationState):
         210.0,
         340.0,
         anchor="nw",
-        text=("Enter the device id into claim device page, \nclaim it and click on the refresh button to check \nif the device is registered" if load_data_from_keyring(OWNER_ID_NAME) is "" else "Device is already registered"),
+        text=("Enter the device id into claim device page, \nclaim it and click on the refresh button to check \nif the device is registered" if load_data_from_keyring(OWNER_ID_NAME) == "" else "Device is already registered"),
         fill="#515050",
         font=("Kadwa Regular", 20),
     )

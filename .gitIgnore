@@ -11,3 +11,4 @@ main.spec
 *.crt
 *.key
 *.pem
+misc/reset_keyring.py
