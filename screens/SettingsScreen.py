@@ -10,7 +10,6 @@ from misc.utility import ApplicationState, restart
 from screens import (
     HomeScreen,
     ConfigureWiFiScreen,
-    BottleDetectedLoadingScreen,
     RegisterDeviceScreen,
     ChangePasswordScreen,
 )
@@ -80,21 +79,21 @@ def SettingsScreen(window: tk.Tk, application_state: ApplicationState):
     button_register.place(x=163, y=305)
 
     # Change Password
-    button_register = tk.Label(
+    button_change_password = tk.Label(
         window,
         text="> Change Settings Password",
     )
-    button_register.bind(
+    button_change_password.bind(
         "<Button-1>",
         lambda _: ChangePasswordScreen.ChangePasswordScreen(window, application_state),
     )
-    button_register.place(x=163, y=355)
+    button_change_password.place(x=163, y=355)
 
     # Back button
     back_image = ImageTk.PhotoImage(back)
     back_button = tk.Label(
         window,
-        image=back_image,
+        image=back_image, # type: ignore
         borderwidth=0,  # Remove the border
         highlightthickness=0,  # Remove the highlight border
         relief="flat",  # Set the button relief to "flat" to avoid any raised or sunken borders
@@ -102,7 +101,7 @@ def SettingsScreen(window: tk.Tk, application_state: ApplicationState):
         padx=10,  # Add horizontal padding (space around the image)
         pady=10,  # Add vertical padding (space around the image)
     )
-    back_button.image = back_image
+    back_button.image = back_image # type: ignore
     back_button.bind(
         "<Button-1>",
         lambda _: HomeScreen.HomeScreen(window, application_state),

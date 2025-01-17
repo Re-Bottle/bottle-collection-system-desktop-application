@@ -1,5 +1,6 @@
 import tkinter as tk
 
+from interface.custom_data_send import notify_bottle_detected
 from interface.io import control_servo, turn_on_led_test  # type: ignore
 from interface.camera_interface import capture_image  # type: ignore
 from interface.server_communicate import get_registration_status
@@ -13,6 +14,9 @@ application_state = ApplicationState()
 
 def on_escape(_):
     window.quit()
+
+def on_send_data():
+    notify_bottle_detected(get_device_id())
 
 
 def setup():
@@ -53,7 +57,8 @@ if __name__ == "__main__":
     window.geometry("800x480")
     window.configure(bg="#FFFFFF")
     window.bind("<Escape>", on_escape)  # type: ignore
-    window.bind("<Button-2>", on_escape)  # type: ignore
+    window.bind("<Button-2>", on_escape)   # type: ignore
+    window.bind("<Button-3>", lambda event: on_send_data())  
 
     HomeScreenCanvas = HomeScreen.HomeScreen(window, application_state)
 
