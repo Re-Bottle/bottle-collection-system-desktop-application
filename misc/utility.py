@@ -452,6 +452,7 @@ def get_device_details() -> REGISTRATION_STATE:
     registration_state = load_data_from_keyring(REGISTRATION_SERVICE_NAME)
     if registration_state is None:
         keyring.set_password(REGISTRATION_SERVICE_NAME, USER_NAME, REGISTRATION_STATE.UNREGISTERED.value)
+        registration_state = REGISTRATION_STATE.UNREGISTERED.value
     return REGISTRATION_STATE(registration_state)
 
 
