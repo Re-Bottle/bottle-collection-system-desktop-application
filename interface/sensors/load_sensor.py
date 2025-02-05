@@ -1,7 +1,7 @@
 import lgpio # type: ignore
 import time
 
-def read_hx711_count(gpio_pin_dt=17, gpio_pin_sck=27): # type: ignore
+def read_hx711_count(gpio_pin_dt=2, gpio_pin_sck=3): # type: ignore
     """
     Reads raw data from the HX711 ADC.
     Args:
@@ -42,7 +42,7 @@ def read_hx711_count(gpio_pin_dt=17, gpio_pin_sck=27): # type: ignore
     return count
 
 
-def main():
+def run_load_sensor():
     offset = 8358903  # Offset for calibration
     actual_weight = 182  # Known weight for calibration
     measured_weight = 1734  # Placeholder for measured weight
@@ -67,4 +67,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run_load_sensor()
