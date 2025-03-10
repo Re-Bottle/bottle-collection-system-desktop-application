@@ -125,14 +125,15 @@ import awscrt.io
 import awscrt.mqtt
 import urllib.parse
 
+from typing import Any, Dict, Optional, Callable
 
-def _check_required_kwargs(**kwargs):
+def _check_required_kwargs(**kwargs: Any) -> None:
     for required in ['endpoint', 'client_id']:
         if not kwargs.get(required):
             raise TypeError("Builder needs keyword-only argument '{}'".format(required))
 
 
-def _get(kwargs, name, default=None):
+def _get(kwargs: Dict[str, Any], name: str, default: Any = None) -> Any:
     """
     Returns kwargs['name'] if it exists and is not None.
     Otherwise returns default.
@@ -149,7 +150,7 @@ def _get(kwargs, name, default=None):
 _metrics_str = None
 
 
-def _get_metrics_str(current_username=""):
+def _get_metrics_str(current_username: str = "") -> str:
     global _metrics_str
 
     username_has_query = False
@@ -177,11 +178,11 @@ def _get_metrics_str(current_username=""):
 
 
 def _builder(
-        tls_ctx_options,
-        use_websockets=False,
-        websocket_handshake_transform=None,
-        use_custom_authorizer=False,
-        **kwargs):
+        tls_ctx_options: awscrt.io.TlsContextOptions,
+        use_websockets: bool = False,
+        websocket_handshake_transform: Any = None,
+        use_custom_authorizer: bool = False,
+        **kwargs: Any):
 
     ca_bytes = _get(kwargs, 'ca_bytes')
     ca_filepath = _get(kwargs, 'ca_filepath')
@@ -258,7 +259,7 @@ def _builder(
     )
 
 
-def mtls_from_path(cert_filepath, pri_key_filepath, **kwargs) -> awscrt.mqtt.Connection:
+def mtls_from_path(cert_filepath: str, pri_key_filepath: str, **kwargs: Any) -> awscrt.mqtt.Connection:
     """
     This builder creates an :class:`awscrt.mqtt.Connection`, configured for an mTLS MQTT connection to AWS IoT.
     TLS arguments are passed as filepaths.
@@ -276,7 +277,7 @@ def mtls_from_path(cert_filepath, pri_key_filepath, **kwargs) -> awscrt.mqtt.Con
     return _builder(tls_ctx_options, **kwargs)
 
 
-def mtls_from_bytes(cert_bytes, pri_key_bytes, **kwargs) -> awscrt.mqtt.Connection:
+def mtls_from_bytes(cert_bytes: bytes, pri_key_bytes: bytes, **kwargs: Any) -> awscrt.mqtt.Connection:
     """
     This builder creates an :class:`awscrt.mqtt.Connection`, configured for an mTLS MQTT connection to AWS IoT.
     TLS arguments are passed as in-memory bytes.
@@ -297,12 +298,12 @@ def mtls_from_bytes(cert_bytes, pri_key_bytes, **kwargs) -> awscrt.mqtt.Connecti
 def mtls_with_pkcs11(*,
                      pkcs11_lib: awscrt.io.Pkcs11Lib,
                      user_pin: str,
-                     slot_id: int = None,
-                     token_label: str = None,
-                     private_key_label: str = None,
-                     cert_filepath: str = None,
-                     cert_bytes=None,
-                     **kwargs) -> awscrt.mqtt.Connection:
+                     slot_id: Optional[int] = None,
+                     token_label: Optional[str] = None,
+                     private_key_label: Optional[str] = None,
+                     cert_filepath: Optional[str] = None,
+                     cert_bytes: Optional[bytes] = None,
+                     **kwargs: Any) -> awscrt.mqtt.Connection:
     """
     This builder creates an :class:`awscrt.mqtt.Connection`, configured for an mTLS MQTT connection to AWS IoT,
     using a PKCS#11 library for private key operations.
@@ -353,7 +354,7 @@ def mtls_with_pkcs11(*,
 def mtls_with_pkcs12(*,
                      pkcs12_filepath: str,
                      pkcs12_password: str,
-                     **kwargs) -> awscrt.mqtt.Connection:
+                     **kwargs: Any) -> awscrt.mqtt.Connection:
     """
     This builder creates an :class:`awscrt.mqtt.Connection`, configured for an mTLS MQTT connection to AWS IoT,
     using a PKCS#12 certificate.
@@ -378,7 +379,7 @@ def mtls_with_pkcs12(*,
 
 def mtls_with_windows_cert_store_path(*,
                                       cert_store_path: str,
-                                      **kwargs) -> awscrt.mqtt.Connection:
+                                      **kwargs: Any) -> awscrt.mqtt.Connection:
     """
     This builder creates an :class:`awscrt.mqtt.Connection`, configured for an mTLS MQTT connection to AWS IoT,
     using a client certificate in a Windows certificate store.
@@ -401,10 +402,10 @@ def mtls_with_windows_cert_store_path(*,
 
 
 def websockets_with_default_aws_signing(
-        region,
-        credentials_provider,
-        websocket_proxy_options=None,
-        **kwargs) -> awscrt.mqtt.Connection:
+        region: str,
+        credentials_provider: awscrt.auth.AwsCredentialsProvider,
+        websocket_proxy_options: Optional[awscrt.http.HttpProxyOptions] = None,
+        **kwargs: Any) -> awscrt.mqtt.Connection:
     """
     This builder creates an :class:`awscrt.mqtt.Connection`, configured for an MQTT connection over websockets to AWS IoT.
     The websocket handshake is signed using credentials from the credentials_provider.
@@ -424,12 +425,12 @@ def websockets_with_default_aws_signing(
     """
     _check_required_kwargs(**kwargs)
 
-    def _sign_websocket_handshake_request(transform_args, **kwargs):
+    def _sign_websocket_handshake_request(transform_args: awscrt.mqtt.WebsocketHandshakeTransformArgs, **kwargs: Any):
         # transform_args need to know when transform is done
         try:
             signing_config = awscrt.auth.AwsSigningConfig(
-                algorithm=awscrt.auth.AwsSigningAlgorithm.V4,
-                signature_type=awscrt.auth.AwsSignatureType.HTTP_REQUEST_QUERY_PARAMS,
+                algorithm=awscrt.auth.AwsSigningAlgorithm.V4, # type: ignore
+                signature_type=awscrt.auth.AwsSignatureType.HTTP_REQUEST_QUERY_PARAMS, # type: ignore
                 credentials_provider=credentials_provider,
                 region=region,
                 service='iotdevicegateway',
@@ -445,9 +446,9 @@ def websockets_with_default_aws_signing(
 
 
 def websockets_with_custom_handshake(
-        websocket_handshake_transform,
-        websocket_proxy_options=None,
-        **kwargs) -> awscrt.mqtt.Connection:
+        websocket_handshake_transform: Optional[Callable[[awscrt.mqtt.WebsocketHandshakeTransformArgs], None]],
+        websocket_proxy_options: Optional[awscrt.http.HttpProxyOptions] = None,
+        **kwargs: Any) -> awscrt.mqtt.Connection:
     """
     This builder creates an :class:`awscrt.mqtt.Connection`, configured for an MQTT connection over websockets,
     with a custom function to transform the websocket handshake request before it is sent to the server.
@@ -481,7 +482,7 @@ def websockets_with_custom_handshake(
                     **kwargs)
 
 
-def _add_to_username_parameter(input_string, parameter_value, parameter_pretext):
+def _add_to_username_parameter(input_string: str, parameter_value: str, parameter_pretext: str) -> str:
     """
     Helper function to add parameters to the username in the direct_with_custom_authorizer function
     """
@@ -498,14 +499,7 @@ def _add_to_username_parameter(input_string, parameter_value, parameter_pretext)
         return return_string + parameter_pretext + parameter_value
 
 
-def direct_with_custom_authorizer(
-        auth_username=None,
-        auth_authorizer_name=None,
-        auth_authorizer_signature=None,
-        auth_password=None,
-        auth_token_key_name=None,
-        auth_token_value=None,
-        **kwargs) -> awscrt.mqtt.Connection:
+def direct_with_custom_authorizer(auth_username: Optional[str] = None, auth_authorizer_name: Optional[str] = None, auth_authorizer_signature: Optional[str] = None, auth_password: Optional[str] = None, auth_token_key_name: Optional[str] = None, auth_token_value: Optional[str] = None, **kwargs: Any) -> awscrt.mqtt.Connection:
     """
     This builder creates an :class:`awscrt.mqtt.Connection`, configured for an MQTT connection using a custom
     authorizer using a direct MQTT connection. This function will set the username, port, and TLS options.
@@ -552,16 +546,7 @@ def direct_with_custom_authorizer(
         use_websockets=False,
         **kwargs)
 
-def websockets_with_custom_authorizer(
-        region=None,
-        credentials_provider=None,
-        auth_username=None,
-        auth_authorizer_name=None,
-        auth_authorizer_signature=None,
-        auth_password=None,
-        auth_token_key_name=None,
-        auth_token_value=None,
-        **kwargs) -> awscrt.mqtt.Connection:
+def websockets_with_custom_authorizer(region: Optional[str] = None, credentials_provider: Optional[awscrt.auth.AwsCredentialsProvider] = None, auth_username: Optional[str] = None, auth_authorizer_name: Optional[str] = None, auth_authorizer_signature: Optional[str] = None, auth_password: Optional[str] = None, auth_token_key_name: Optional[str] = None, auth_token_value: Optional[str] = None, **kwargs: Any) -> awscrt.mqtt.Connection:
     """
     This builder creates an :class:`awscrt.mqtt.Connection`, configured for an MQTT connection using a custom
     authorizer using websockets. This function will set the username, port, and TLS options.
@@ -615,16 +600,17 @@ def websockets_with_custom_authorizer(
         **kwargs)
 
 
-def _with_custom_authorizer(auth_username=None,
-        auth_authorizer_name=None,
-        auth_authorizer_signature=None,
-        auth_password=None,
-        auth_token_key_name=None,
-        auth_token_value=None,
-        use_websockets=False,
-        websockets_credentials_provider=None,
-        websockets_region=None,
-        **kwargs) -> awscrt.mqtt.Connection:
+def _with_custom_authorizer(
+        auth_username: Optional[str] = None, 
+        auth_authorizer_name: Optional[str] = None, 
+        auth_authorizer_signature: Optional[str] = None, 
+        auth_password: Optional[str] = None, 
+        auth_token_key_name: Optional[str] = None, 
+        auth_token_value: Optional[str] = None, 
+        use_websockets: bool = False, 
+        websockets_credentials_provider: Optional[awscrt.auth.AwsCredentialsProvider] = None,
+        websockets_region: Optional[str] = None, 
+        **kwargs: Any) -> awscrt.mqtt.Connection:
     """
     Helper function that contains the setup needed for custom authorizers
     """
@@ -661,7 +647,7 @@ def _with_custom_authorizer(auth_username=None,
         kwargs["port"] = 443
         tls_ctx_options.alpn_list = ["mqtt"]
 
-    def _sign_websocket_handshake_request(transform_args, **kwargs):
+    def _sign_websocket_handshake_request(transform_args: awscrt.mqtt.WebsocketHandshakeTransformArgs, **kwargs: Any) -> None:
         # transform_args need to know when transform is done
         try:
             transform_args.set_done()
@@ -675,7 +661,7 @@ def _with_custom_authorizer(auth_username=None,
                     **kwargs)
 
 
-def new_default_builder(**kwargs) -> awscrt.mqtt.Connection:
+def new_default_builder(**kwargs: Any) -> awscrt.mqtt.Connection:
     """
     This builder creates an :class:`awscrt.mqtt.Connection`, without any configuration besides the default TLS context options.
 

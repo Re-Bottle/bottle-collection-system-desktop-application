@@ -1,12 +1,20 @@
 import tkinter as tk
-
-from interface.custom_data_send import notify_bottle_detected
+import threading
+from interface.custom_data_send import subscribe_mqtt
 from interface.io import control_servo, turn_on_led_test  # type: ignore
 from interface.camera_interface import capture_image  # type: ignore
 from interface.server_communicate import get_registration_status
-# from interface.custom_data_send import notify_bottle_detected
-from screens import HomeScreen
-from misc.utility import OWNER_ID_NAME, REGISTRATION_STATE, ApplicationState, get_device_id, get_device_details, load_data_from_keyring
+
+# from interface.custom_data_send import main
+from screens import BottleDetectedLoadingScreen, HomeScreen
+from misc.utility import (
+    OWNER_ID_NAME,
+    REGISTRATION_STATE,
+    ApplicationState,
+    get_device_id,
+    get_device_details,
+    load_data_from_keyring,
+)
 import platform
 
 application_state = ApplicationState()
@@ -14,9 +22,6 @@ application_state = ApplicationState()
 
 def on_escape(_):
     window.quit()
-
-def on_send_data():
-    notify_bottle_detected(get_device_id())
 
 
 def setup():
@@ -44,9 +49,26 @@ def setup():
     pass
 
 
+def start_mqtt_listener():
+    """Start the MQTT subscription in a separate daemon thread."""
+    try:
+        mqtt_thread = threading.Thread(
+            target=subscribe_mqtt, args=(application_state.device_id,), daemon=True
+        )
+        mqtt_thread.start()
+    except Exception as e:
+        print(f"Error starting MQTT thread: {e}")
+
+
+# Only for simulation
+def go_to_bottle_detected_screen():
+    BottleDetectedLoadingScreen.BottleDetectedLoadingScreen(window, application_state)
+
+
 if __name__ == "__main__":
 
-    setup()  # Setup code for the application
+    setup()
+    # start_mqtt_listener()
 
     # Main Window
     window = tk.Tk()
@@ -57,8 +79,8 @@ if __name__ == "__main__":
     window.geometry("800x480")
     window.configure(bg="#FFFFFF")
     window.bind("<Escape>", on_escape)  # type: ignore
-    window.bind("<Button-2>", on_escape)   # type: ignore
-    window.bind("<Button-3>", lambda event: on_send_data())  
+    window.bind("<Button-2>", on_escape)  # type: ignore
+    window.bind("<Button-3>", lambda event: go_to_bottle_detected_screen())
 
     HomeScreenCanvas = HomeScreen.HomeScreen(window, application_state)
 

@@ -1,7 +1,8 @@
-import lgpio # type: ignore
+import lgpio  # type: ignore
 import time
 
-def read_hx711_count(gpio_pin_dt=2, gpio_pin_sck=3): # type: ignore
+
+def read_hx711_count(gpio_pin_dt=2, gpio_pin_sck=3):  # type: ignore
     """
     Reads raw data from the HX711 ADC.
     Args:
@@ -14,37 +15,37 @@ def read_hx711_count(gpio_pin_dt=2, gpio_pin_sck=3): # type: ignore
     h = lgpio.gpiochip_open(0)  # type: ignore # Open GPIO chip 0
 
     # Configure pins
-    lgpio.gpio_claim_output(h, gpio_pin_sck) # type: ignore
-    lgpio.gpio_claim_input(h, gpio_pin_dt) # type: ignore
-    lgpio.gpio_write(h, gpio_pin_sck, 0) # type: ignore
+    lgpio.gpio_claim_output(h, gpio_pin_sck)  # type: ignore
+    lgpio.gpio_claim_input(h, gpio_pin_dt)  # type: ignore
+    lgpio.gpio_write(h, gpio_pin_sck, 0)  # type: ignore
 
     # Wait until DT pin is low (HX711 ready signal)
     timeout = time.time() + 1  # Timeout after 1 second
-    while lgpio.gpio_read(h, gpio_pin_dt) == 1: # type: ignore
+    while lgpio.gpio_read(h, gpio_pin_dt) == 1:  # type: ignore
         if time.time() > timeout:
-            lgpio.gpiochip_close(h) # type: ignore
+            lgpio.gpiochip_close(h)  # type: ignore
             raise TimeoutError("HX711 timeout waiting for ready signal")
 
     count = 0
     for _ in range(24):
-        lgpio.gpio_write(h, gpio_pin_sck, 1) # type: ignore
+        lgpio.gpio_write(h, gpio_pin_sck, 1)  # type: ignore
         count = count << 1
-        lgpio.gpio_write(h, gpio_pin_sck, 0) # type: ignore
-        if lgpio.gpio_read(h, gpio_pin_dt) == 0: # type: ignore
+        lgpio.gpio_write(h, gpio_pin_sck, 0)  # type: ignore
+        if lgpio.gpio_read(h, gpio_pin_dt) == 0:  # type: ignore
             count += 1
 
     # Set the gain and prepare for next conversion
-    lgpio.gpio_write(h, gpio_pin_sck, 1) # type: ignore
+    lgpio.gpio_write(h, gpio_pin_sck, 1)  # type: ignore
     count ^= 0x800000  # Apply two's complement for 24-bit signed value
-    lgpio.gpio_write(h, gpio_pin_sck, 0) # type: ignore
+    lgpio.gpio_write(h, gpio_pin_sck, 0)  # type: ignore
 
     lgpio.gpiochip_close(h)  # Close the GPIO chip # type: ignore
     return count
 
 
 def run_load_sensor():
-    offset = 8358903  # Offset for calibration
-    actual_weight = 182  # Known weight for calibration
+    offset = 8358603  # Offset for calibration
+    actual_weight = 1  # Known weight for calibration
     measured_weight = 1734  # Placeholder for measured weight
     factor = actual_weight / measured_weight  # Calibration factor
     max_measurements = 10

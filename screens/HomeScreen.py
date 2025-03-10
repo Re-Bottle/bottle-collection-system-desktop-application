@@ -7,7 +7,7 @@ from components.wifi_status import Add_Wifi_Status
 from components.device_reg_status import Add_Device_Reg_Status
 from misc.utility import ApplicationState
 
-# from screens import SettingsScreen
+# from screens import LoginScreen
 from screens import LoginScreen
 
 
@@ -74,7 +74,6 @@ def HomeScreen(window: tk.Tk, application_state: ApplicationState):
     settings_button.image = settings_image  # type: ignore as we are doing this to keep reference to image
     settings_button.bind(
         "<Button-1>",
-        # lambda _: SettingsScreen.SettingsScreen(window, application_state),
         lambda _: LoginScreen.LoginScreen(window, application_state),
     )
     settings_button.place(x=561, y=393)

@@ -12,3 +12,4 @@ main.spec
 *.key
 *.pem
 misc/reset_keyring.py
+interface/new.py

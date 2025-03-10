@@ -1,59 +1,68 @@
-import lgpio # type: ignore
+import lgpio  # type: ignore
 import time
 
-# Define the GPIO pins connected to the ultrasonic sensor, Trigger and Echo
-TRIGGER_PIN = 17  
-ECHO_PIN = 27    
+# Define GPIO pins
+TRIGGER_PIN = 17
+ECHO_PIN = 27
 
-handle = lgpio.gpiochip_open(0) # type: ignore
-lgpio.gpio_claim_output(handle, TRIGGER_PIN) # type: ignore
-lgpio.gpio_claim_input(handle, ECHO_PIN) # type: ignore
+# Initialize GPIO
+handle = lgpio.gpiochip_open(0)  # type: ignore
+lgpio.gpio_claim_output(handle, TRIGGER_PIN)  # type: ignore
+lgpio.gpio_claim_input(handle, ECHO_PIN)  # type: ignore
 
-# Function to measure the distance using the HC-SR04
+
 def measure_distance():
     """
     Measure the distance using the HC-SR04 ultrasonic sensor.
-    Send a trigger signal, measure the time taken for the echo signal to return,
-    and calculate the distance based on the speed of sound (time * speed of sound).
     """
-    lgpio.gpio_write(handle, TRIGGER_PIN, 0)  # type: ignore
-    time.sleep(0.000002)  
+    # Send a 10µs pulse to trigger the sensor
     lgpio.gpio_write(handle, TRIGGER_PIN, 1)  # type: ignore
-    time.sleep(0.00001)   
+    time.sleep(0.00001)
     lgpio.gpio_write(handle, TRIGGER_PIN, 0)  # type: ignore
 
-    # Measure the time it takes for the Echo pin to go HIGH
-    pulse_start = time.time()
-    pulse_end = time.time()
+    # Measure the time for the echo signal
+    start_time, end_time = None, None
 
-    while lgpio.gpio_read(handle, ECHO_PIN) == 0: # type: ignore
-        pulse_start = time.time()  
+    timeout = time.time() + 0.02  # 20ms timeout
+    while lgpio.gpio_read(handle, ECHO_PIN) == 0:  # type: ignore
+        start_time = time.time()
+        if start_time > timeout:
+            return None  # Timeout handling
 
-    while lgpio.gpio_read(handle, ECHO_PIN) == 1: # type: ignore
-        pulse_end = time.time()  
+    timeout = time.time() + 0.02
+    while lgpio.gpio_read(handle, ECHO_PIN) == 1:  # type: ignore
+        end_time = time.time()
+        if end_time > timeout:
+            return None  # Timeout handling
 
-    pulse_duration = pulse_end - pulse_start
-    distance = pulse_duration * 17150  # Speed of sound = 343 m/s, so multiply by 17150 (cm/s)
+    if start_time and end_time:
+        distance = (end_time - start_time) * 17150  # Speed of sound calculation
+        return round(distance, 2)  # Return rounded distance
+    return None  # Return None if measurement failed
 
-    return distance
 
 def run_ultrasonic_sensor():
+    print("Ultrasonic Sensor: Starting...")
     try:
-        print("Ultrasonic Sensor: Starting...")
         while True:
-            distance = measure_distance()  
-            print(f"Distance: {distance:.2f} cm")
-            time.sleep(1)  # Delay before taking the next measurement
+            distance = measure_distance()
+            if distance is not None:
+                print(f"Distance: {distance:.2f} cm")
+                if distance < 100:
+                    print("Object detected!")
+            else:
+                print("Measurement timeout or failed.")
+
+            time.sleep(0.5)  # Adjustable delay for measurement frequency
 
     except KeyboardInterrupt:
         print("\nExiting gracefully...")
 
     finally:
-        # Clean up and release the GPIO resources
-        lgpio.gpiochip_close(handle) # type: ignore
+        # Ensure GPIO is released
+        lgpio.gpiochip_close(handle)  # type: ignore
         print("GPIO resources released.")
 
 
 if __name__ == "__main__":
     run_ultrasonic_sensor()
-    

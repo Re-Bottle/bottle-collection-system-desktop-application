@@ -1,10 +1,18 @@
 import keyring
 import requests
+
 from misc.file_handling import save_to_file
-from misc.utility import OWNER_ID_NAME, REGISTRATION_SERVICE_NAME, REGISTRATION_STATE, USER_NAME, ApplicationState
+from misc.utility import (
+    OWNER_ID_NAME,
+    REGISTRATION_SERVICE_NAME,
+    REGISTRATION_STATE,
+    USER_NAME,
+    ApplicationState,
+)
 
 SERVER = "http://localhost:3000"  # URL of the server
 application_state = ApplicationState
+
 
 class RegistrationResponse:
     response_code: int = 0
@@ -35,7 +43,9 @@ def ping(device_id: str) -> bool:
     return False
 
 
-def get_registration_status(device_id: str, mac_address: str="00:14:22:01:23:45") -> RegistrationResponse:
+def get_registration_status(
+    device_id: str, mac_address: str = "00:14:22:01:23:45"
+) -> RegistrationResponse:
     try:
         # Sending a POST request to the server
         response = requests.post(
@@ -50,14 +60,20 @@ def get_registration_status(device_id: str, mac_address: str="00:14:22:01:23:45"
                 provisioningDetails["certificatePem"], "certificates/ReBottle.cert.pem"
             )
             save_to_file(
-                provisioningDetails["keyPair"]["PrivateKey"], "certificates/ReBottle.private.key"
+                provisioningDetails["keyPair"]["PrivateKey"],
+                "certificates/ReBottle.private.key",
             )
             if (response.json()["deviceState"]) == "Provisioned":
                 RegistrationResponse.isRegistered = REGISTRATION_STATE.REGISTERED
-                keyring.set_password(REGISTRATION_SERVICE_NAME, USER_NAME, REGISTRATION_STATE.REGISTERED.value)
-                keyring.set_password(OWNER_ID_NAME, USER_NAME, response.json()["ownerID"])
-            # x={}
-               
+                keyring.set_password(
+                    REGISTRATION_SERVICE_NAME,
+                    USER_NAME,
+                    REGISTRATION_STATE.REGISTERED.value,
+                )
+                keyring.set_password(
+                    OWNER_ID_NAME, USER_NAME, response.json()["ownerID"]
+                )
+
             return RegistrationResponse(
                 response.status_code,
                 REGISTRATION_STATE.REGISTERED,
@@ -71,3 +87,22 @@ def get_registration_status(device_id: str, mac_address: str="00:14:22:01:23:45"
     except requests.exceptions.ConnectionError as e:
         print("Error registering the device: ", e)
         return RegistrationResponse(404, REGISTRATION_STATE.UNREGISTERED, "")
+
+
+def createScan(device_id: str, scan_data: str) -> bool:
+    try:
+        # Sending a POST request to the server
+        response = requests.post(
+            SERVER + "/scan/createScan",
+            json={
+                "deviceId": device_id,
+                "scanData": scan_data,
+            },
+        )
+
+        if response.status_code == 200:
+            print("Scan created successfully")
+            return True
+    except requests.exceptions.ConnectionError:
+        print("Failed to connect to the server")
+    return False
