@@ -8,7 +8,7 @@ from components.wifi_status import Add_Wifi_Status
 
 # from interface.custom_data_send import publish_mqtt
 from interface.server_communicate import createScan
-from misc.utility import ApplicationState, get_device_id
+from misc.utility import BOTTLE_TYPE, ApplicationState, get_device_id
 from screens import FinalScreen
 
 
@@ -59,6 +59,7 @@ def BottleDetectedLoadingScreen(window: tk.Tk, application_state: ApplicationSta
         createScan(
             device_id=get_device_id(),
             scan_data=scanData,
+            bottle_type=BOTTLE_TYPE.LITRE1.value,
         )
         FinalScreen.FinalScreen(
             window, application_state, scanData

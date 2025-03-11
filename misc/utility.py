@@ -29,6 +29,12 @@ class REGISTRATION_STATE(Enum):
     UNREGISTERED = "Unregistered"
 
 
+class BOTTLE_TYPE(Enum):
+    LITRE1 = 5
+    ML750 = 3
+    ML500 = 2
+
+
 class ApplicationState:
     wifi_state: WIFI_STATE = WIFI_STATE.NOT_CONNECTED
     device_registration_state: REGISTRATION_STATE = REGISTRATION_STATE.UNREGISTERED
@@ -447,11 +453,14 @@ def get_device_id():
         device_id = initialize_device()
     return device_id
 
+
 def get_device_details() -> REGISTRATION_STATE:
-    '''Get the device registration state from the keyring'''
+    """Get the device registration state from the keyring"""
     registration_state = load_data_from_keyring(REGISTRATION_SERVICE_NAME)
     if registration_state is None:
-        keyring.set_password(REGISTRATION_SERVICE_NAME, USER_NAME, REGISTRATION_STATE.UNREGISTERED.value)
+        keyring.set_password(
+            REGISTRATION_SERVICE_NAME, USER_NAME, REGISTRATION_STATE.UNREGISTERED.value
+        )
         registration_state = REGISTRATION_STATE.UNREGISTERED.value
     return REGISTRATION_STATE(registration_state)
 

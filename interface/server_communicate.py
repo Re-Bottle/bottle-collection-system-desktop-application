@@ -89,7 +89,7 @@ def get_registration_status(
         return RegistrationResponse(404, REGISTRATION_STATE.UNREGISTERED, "")
 
 
-def createScan(device_id: str, scan_data: str) -> bool:
+def createScan(device_id: str, scan_data: str, bottle_type: int) -> bool:
     try:
         # Sending a POST request to the server
         response = requests.post(
@@ -97,6 +97,7 @@ def createScan(device_id: str, scan_data: str) -> bool:
             json={
                 "deviceId": device_id,
                 "scanData": scan_data,
+                "bottleType": bottle_type,
             },
         )
 
