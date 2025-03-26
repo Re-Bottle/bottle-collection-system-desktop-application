@@ -2,9 +2,8 @@ import lgpio  # type: ignore
 import time
 import cv2
 import numpy as np
-import tflite_runtime.interpreter as tflite
 from typing import Any, Optional
-from picamera2 import Picamera2, Preview, MappedArray
+import image_classification
 
 # GPIO Pins
 GPIO_PIN_SERVO = 12
@@ -24,9 +23,6 @@ ACTUAL_WEIGHT = 1  # Known weight for calibration
 MEASURED_WEIGHT = 1734  # Measured weight (placeholder)
 FACTOR = ACTUAL_WEIGHT / MEASURED_WEIGHT  # Calibration factor
 MAX_MEASUREMENTS = 10
-
-normalSize = (2304, 1296)  # Higher resolution with better FPS
-lowresSize = (1536, 864)  # Lower resolution for processing speed
 
 # Create a handle for the GPIO
 handle = lgpio.gpiochip_open(0)  # type: ignore
@@ -133,108 +129,6 @@ def calculate_weight() -> float:
         return 0
 
 
-# Object detection (TensorFlow Lite)
-rectangles = []
-
-
-def ReadLabelFile(file_path: str) -> dict[int, str]:
-    with open(file_path, "r") as f:
-        lines = f.readlines()
-    ret = dict[int, str]()
-    for line in lines:
-        pair = line.strip().split(maxsplit=1)
-        ret[int(pair[0])] = pair[1].strip()
-    return ret
-
-
-def DrawRectangles(request: str):
-    with MappedArray(request, "main") as m:
-        for rect in rectangles:
-            print(rect)
-            rect_start = (int(rect[0] * 2) - 5, int(rect[1] * 2) - 5)
-            rect_end = (int(rect[2] * 2) + 5, int(rect[3] * 2) + 5)
-            cv2.rectangle(m.array, rect_start, rect_end, (0, 255, 0, 0))
-            if len(rect) == 5:
-                text = rect[4]
-                font = cv2.FONT_HERSHEY_SIMPLEX
-                cv2.putText(
-                    m.array,
-                    str(text),
-                    (int(rect[0] * 2) + 10, int(rect[1] * 2) + 10),
-                    font,
-                    1,
-                    (255, 255, 255),
-                    2,
-                    cv2.LINE_AA,
-                )
-
-
-def InferenceTensorFlow(
-    image: np.ndarray[Any, Any], model: str, label: Optional[str] = None
-) -> None:
-    global rectangles
-    if label:
-        labels = ReadLabelFile(label)
-    else:
-        labels = None
-
-    interpreter = tflite.Interpreter(model_path=model, num_threads=4)
-    interpreter.allocate_tensors()
-
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
-
-    height = input_details[0]["shape"][1]
-    width = input_details[0]["shape"][2]
-    floating_model = input_details[0]["dtype"] == np.float32
-
-    rgb = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
-    picture = cv2.resize(rgb, (width, height), interpolation=cv2.INTER_AREA)
-    input_data = np.expand_dims(picture, axis=0)
-
-    if floating_model:
-        input_data = (np.float32(input_data) - 127.5) / 127.5
-
-    interpreter.set_tensor(input_details[0]["index"], input_data)
-    interpreter.invoke()
-
-    output_data = interpreter.get_tensor(output_details[0]["index"])
-    class_id = int(output_data[0][0])  # Class ID
-    confidence = output_data[0][1]  # Confidence score
-
-    rectangles.append([0, 0, 0, 0, f"{class_id}: {confidence:.2f}"])
-    return rectangles
-
-
-def object_detection(
-    label_file: str = "labels_custom.txt",
-    model: str = "model_custom.tflite",
-) -> None:
-    picam2 = Picamera2()
-    picam2.rotate = 90
-    config = picam2.create_preview_configuration(
-        main={"size": normalSize, "format": "XRGB8888"},
-        lores={"size": lowresSize, "format": "YUV420"},
-    )
-    picam2.configure(config)
-    picam2.start()
-
-    stride = picam2.stream_configuration("lores")["stride"]
-
-    while True:
-        buffer = picam2.capture_buffer("lores")
-        grey = buffer[: stride * lowresSize[1]].reshape((lowresSize[1], stride))
-
-        rectangles = InferenceTensorFlow(grey, model, label_file)
-        if rectangles and rectangles[0][4] == "no_bottle":
-            print("No bottle detected in the image. Activating servo.")
-            run_servo()
-        time.sleep(1)
-
-    picam2.stop()
-
-
-# Main system logic
 def run_system() -> None:
     try:
         print("System started...")
@@ -248,7 +142,8 @@ def run_system() -> None:
 
             if distance is not None and distance < 10 and load_weight > 0:
                 print("Bottle detected! Triggering object detection...")
-                object_detection()  # Run object detection if bottle is detected
+                image_classification.classify_image()
+                run_servo()
                 time.sleep(1)
             else:
                 print("No bottle detected or insufficient weight.")
